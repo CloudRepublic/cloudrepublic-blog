@@ -89,5 +89,6 @@ There is not one way to upgrade your project. If you’re planning to migrate yo
 But if you are on an older code base that uses separate controllers and html templates, you should rewrite your code to a component-based system. A tool that could help you is the hybrid library for UI-Router. This will allow you to upgrade page by page. You can find this library [over here](https://github.com/ui-router/angular-hybrid).
 
 ** This blog is written by: ** 
+Martin Ligtenberg
 <script src="//platform.linkedin.com/in.js" type="text/javascript"></script>
 <script type="IN/MemberProfile" data-id="https://www.linkedin.com/in/mvligtenberg/" data-format="inline" data-related="false"></script>
