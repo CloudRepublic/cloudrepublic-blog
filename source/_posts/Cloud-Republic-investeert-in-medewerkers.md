@@ -1,6 +1,9 @@
 ---
 title: Cloud Republic investeert in medewerkers
-tags: Azure, Cloud Republic, Certificering,
+tags: 
+- Azure
+- Cloud Republic
+- Certificering
 ---
 Bij Cloud Republic werken developers die steen goed zijn in het bouwen van maatwerkapplciaties in de Cloud.
 Wij geloven dat synergie in een team belangrijk is. Wij streven naar een team met soortgelijke skills die elkaar weten te versterken.

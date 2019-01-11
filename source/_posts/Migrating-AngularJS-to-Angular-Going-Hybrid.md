@@ -1,7 +1,11 @@
 ---
 title: Migrating AngularJS to Angular - Going Hybrid
 date: 2019-01-11 14:28:20
-tags: AngularJS, Angular, Webpack, Hybrid
+tags: 
+- AngularJS
+- Angular
+- Webpack
+- Hybrid
 ---
 So, you are finally ready to start to migrate your old AngularJS to the new fancy Angular 7. But it is kind of big and you cannot afford not to release for half a year. So how are you going to do it? You want to upgrade to the latest Angular version, but you can’t do it with a big bang. Well there is a great hybrid solution made by the Angular team called @Angular/Upgrade. It basically lets you run AngularJS inside Angular and makes all you’re AngularJS Services, Components, Directives etc. available in Angular and vice versa. 	
 ## Getting your AngularJS Code ready
