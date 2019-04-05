@@ -21,8 +21,8 @@ Ik heb 40 bestanden met landen en wijnen. 1 bestand is ongeveer 75 mb groot. Voo
 Ik maak in de poc gebruik ik een *extract countries* activity om de landen uit de xml te halen. Hierna ga met het *fan out* principe ik per land een activity starten om de wijnen per land uit structuur te halen. Als dit allemaal klaar is wordt er per wijn een activity gestart welke de wijn in json formaat upload in een blob container.
 
 Zie hier een overzicht van de durable function:
-{% asset_img overview.png %}
 
+<img src="/images/durable-functions.png" />
 
 Waar ben ik tegenaan gelopen tijdens de POC
 ---
