@@ -1,5 +1,6 @@
 ---
 title: Cloud Republic investeert in medewerkers
+date: 2018-06-01 14:28:20
 tags: 
 - Azure
 - Cloud Republic
