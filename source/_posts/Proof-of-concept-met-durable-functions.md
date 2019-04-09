@@ -148,7 +148,7 @@ Zie hieronder de stappen om het durable functions project te starten:
     * wines
     * wine
 * Publiseer het project naar de functions app.
-* Maak van het bestand DurableFunctionDemo/winedata.xml 40 kopieeen en upload deze naar de wine folder in Azure storage
+* Maak van het bestand DurableFunctionDemo/winedata.xml 40 kopieën en upload deze naar de wine folder in Azure storage
 
 Start applications insight en kijk hoe de applicatie zich gedraagt.
 
@@ -156,11 +156,11 @@ Start applications insight en kijk hoe de applicatie zich gedraagt.
 
 Conclusie
 ---
-Durable functions op een consumption plan is een hele mooie oplossing maar niet voor een applicatie welke intensief geheugen gebruikt en snel veel bestanden moet verwerken. Je blijft met het geheugen limiet van 1,5 gigabyte en je hebt geen invloed op welke activities er op een functions app  worden gehost. 
+Durable functions op een consumption plan is een hele mooie oplossing maar niet voor een applicatie welke intensief geheugen gebruikt en snel veel bestanden moet verwerken. Je blijft met het geheugen limiet van 1,5 gigabyte en je hebt geen invloed op welke activities er op een functions app worden gehost. 
 
 <img src="/images/durable-functions-storage.png" />
 
-Er zit best wel wat overhead in het proces hij gebruik namelijk je Azure storage account als queue voor communicatie tussen de orchestrator en de activities. Als je bericht groter is dan in de queue pas plaatst hij het in een blob container. Bijvoorbeeld als de berichten welke naar de activity *A_UploadWine* gaan groter zijn als 64KB (https://docs.microsoft.com/nl-nl/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted#capacity-and-quotas) dan zullen deze in een blob container *durablefunctionshub-largemessages* worden opgeslagen om vervolgens op gehaald te worden in de activity *A_UploadWine* en deze activity upload hem dan naar de uiteindelijke blob container. Hier zitten al 2 blob storage acties in welke ook tijd en resources kosten.
+Er zit best wel wat overhead in het proces hij gebruikt namelijk je Azure storage account als queue voor communicatie tussen de orchestrator en de activities. Als je bericht groter is dan in de queue pas plaatst hij het in een blob container. Bijvoorbeeld als de berichten welke naar de activity *A_UploadWine* gaan groter zijn als 64KB (https://docs.microsoft.com/nl-nl/azure/service-bus-messaging/service-bus-azure-and-service-bus-queues-compared-contrasted#capacity-and-quotas) dan zullen deze in een blob container *durablefunctionshub-largemessages* worden opgeslagen om vervolgens op gehaald te worden in de activity *A_UploadWine* en deze activity upload hem dan naar de uiteindelijke blob container. Hier zitten al 2 blob storage acties in welke ook tijd en resources kosten.
 
 
 
