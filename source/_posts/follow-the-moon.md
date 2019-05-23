@@ -25,16 +25,16 @@ For this part, we assume your project has some code and a build is in place to c
 
 Suppose our release pipeline looks like this:
 
-<img src="/images/follow-the-moon-1.jpg" />
+<img src="/images/follow-the-moon/follow-the-moon-1.jpg" />
 
 We have our artifact as an entry point. We have our DEV and TST environments hooked up for continuous releases based on the develop branch. Finally, we have our ACC and PRD environments hooked up for continuous releases based on the master branch. In this case, we want to double-check the ACC environment before actually rolling out to PRD, so we add a post-deployment approval condition there.
 
 Now, if we click on the pre-deployment conditions, we see the following menu:
 
-<img src="/images/follow-the-moon-2.jpg" />
+<img src="/images/follow-the-moon/follow-the-moon-2.jpg" />
 
 We enable the schedule and set it to the time where we expect our users to not use the application in that region. For example, in the WE (West Europe) Azure region, at 03:00 would be when we expect our customers to sleep, so we may decide that this is the right time to deploy.
 
-<img src="/images/follow-the-moon-3.jpg" />
+<img src="/images/follow-the-moon/follow-the-moon-3.jpg" />
 
 After we have done this for all the production environments, we have successfully implemented the FTM release schedule! Do note that using swap slots is still what you want to do. However, this principle gives us a little bit of extra safety when releasing code that may otherwise cause downtime.
