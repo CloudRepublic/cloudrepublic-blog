@@ -32,7 +32,7 @@ Azure Batch bestaat uit een aantal componenten.
 * We hebben een Task, dit is en opdracht welke uitgevoerd dient te worden op een node 
 * We hebben een Job, dit is een verzameling van tasks. Aan een Job hangt ook een Pool.
 * We hebben een Pool, dit is een verzameling van nodes
-* We hebben een Node, dit is een virtuele machine welke de opdracht gaat uitvoeren. 
+* We hebben een Node, dit is een virtuele machine welke een van de tasks gaat uitvoeren. 
 
 
 Ik heb 40 bestanden met landen en wijnen. 1 bestand is ongeveer 75 mb groot. Voor test doeleinde zijn dit dezelfde bestanden met een andere naam. Dit is meer om een gelijkwaardige load op de functie te krijgen als bij de echte POC.
@@ -119,8 +119,8 @@ Een Job heeft een pool heeft nodes nodig welke het werk uitvoeren. We gaan deze 
 
 * We specificeren het besturingssysteem in dit geval staat de waarde *5* voor *Windows Server 2016* voor de overige waardes check de Azure Guest OS Releases https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-guestos-update-matrix#releases
 * We specificeren een virtuele machine size in dit geval een *standard_d1_v2* voor de overige ondersteunde machines check https://docs.microsoft.com/en-us/azure/batch/batch-pool-vm-sizes#supported-vm-families-and-sizes
-* We specificeren hoeveel tasks er per node gedraaidt mogen worden in dit geval 4. Er zullen dus 4 tasks per keer op de node worden gestart.
-* We specificeren welke applicatie er op de node gedraaidt dient te worden. Dit moet een applicatie of script zijn welke via de commandline te draaien is. Deze applicatie kan als een zip bestand worden gupload in de portal. 
+* We specificeren hoeveel tasks er per node gedraaid mogen worden in dit geval 4. Er zullen dus 4 tasks per keer op de node worden gestart.
+* We specificeren welke applicatie er op de node gedraaid dient te worden. Dit moet een applicatie of script zijn welke via de commandline te draaien is. Deze applicatie kan als een zip bestand worden gupload in de portal. 
 * We zetten de lifetime op *PoolLifetimeOption.Job* dit wil zeggen zodra de alle tasks in de Job klaar zijn zal de pool verwijdert worden en zul je dus ook niet meer betalen voor de virtuele machines. 
 
 ```csharp
@@ -438,10 +438,10 @@ namespace WineConverter
 Conclusie
 ---
 Azure batch is echt een serieuze keuze als het gaat om grote hoeveelheden data te verwerken en je wilt in controle zijn wat er allemaal gebeurd.
-Je kan zowel horizontaal als verticaal schalen en het aantal nodes wat het werk kan doen is standaard 20 maar je kunt een request doen voor meer nodes. Het maximaal aantal nodes in niet gespecificeerd in de documentatie https://docs.microsoft.com/en-us/azure/batch/batch-quota-limit je kunt dus bijna oneindig schalen.
+Je kan zowel horizontaal als verticaal schalen en het aantal nodes wat het werk kan doen is standaard 20 maar je kunt een request doen voor meer nodes. Voor de recource limieten check de documentatie https://docs.microsoft.com/en-us/azure/batch/batch-quota-limit.
 
 Ik ken zelf weinig projecten waar ze Azure batch gebruiken maar ik ben echt onder de indruk hoe simpel en krachtig Azure batch is plus je betaald alleen voor de tijd dat de nodes ook echt iets doen dus geen vaste maandelijkse kosten.
 
 Deze POC heeft het kwa performance zijn doel wel behaald wat we voor ogen hadden alleen het bevat toch net te veel stappen om het volledig via CI/CD gemakkelijk te deployen. 
 
-In een volgende blog zal ik de uiteindelijke oplossing uitwerken met verscullende functie apps op een consumption plan welke aan alle eisen voldoet.
+In een volgende blog zal ik de uiteindelijke oplossing uitwerken met verschillende functie apps op een consumption plan welke aan alle eisen voldoet.
