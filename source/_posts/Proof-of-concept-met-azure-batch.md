@@ -14,7 +14,7 @@ Het doel is om de wijnen uit de XML dump te halen en deze om te zetten naar een 
 Wat is de opzet van de POC
 ---
 We gaan de xml bestanden transformeren doormiddel van een Azure Batch component en we starten en beheren de Azure Batch doormiddel van een Azure Function.
-De Azure Function zal de xml bestanden toevoegen aan een Job in Azure Batch doormiddel van een event gridt rigger (https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-grid) en via een httptrigger is de voortgang te zien van het batch proces. 
+De Azure Function zal de xml bestanden toevoegen aan een Job in Azure Batch doormiddel van een [event grid trigger](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-grid) en via een httptrigger is de voortgang te zien van het batch proces. 
 
 <img src="/images/azure-batch-overview.png" />
 
@@ -29,10 +29,10 @@ Hoe werkt dit nu eigenlijk allemaal
 
 Azure Batch bestaat uit een aantal componenten.
 
-* We hebben een Task, dit is en opdracht welke uitgevoerd dient te worden op een node 
-* We hebben een Job, dit is een verzameling van tasks. Aan een Job hangt ook een Pool.
-* We hebben een Pool, dit is een verzameling van nodes
-* We hebben een Node, dit is een virtuele machine welke een van de tasks gaat uitvoeren. 
+* Een Task is een opdracht welke uitgevoerd dient te worden op een node. 
+* Een Job is een verzameling van tasks. Aan een Job hangt ook een Pool.
+* Een Pool is een verzameling van nodes
+* Een Node is een virtuele machine welke een van de tasks gaat uitvoeren. 
 
 
 Ik heb 40 bestanden met landen en wijnen. 1 bestand is ongeveer 75 mb groot. Voor test doeleinde zijn dit dezelfde bestanden met een andere naam. Dit is meer om een gelijkwaardige load op de functie te krijgen als bij de echte POC.
@@ -66,7 +66,7 @@ De methode RunBatch initialiseert een BatchClient met de credentials welke opgeg
         }
 ```
 
-Hierna gaan we kijken of er al een job bestaat in het Azure Batch Account. Als er al een job bestaat en hij is nog actief of wordt aangemaakt voegen we hier een task aan toe. Als er geen job actief is of wordt opgestart dan maken we een Job aan. Dit gebeurdt in de *CreateJob* methode. 
+Hierna gaan we kijken of er al een job bestaat in het Azure Batch Account. Als er al een job bestaat en hij is nog actief of wordt aangemaakt voegen we hier een task aan toe. Als er geen job actief is of wordt opgestart dan maken we een Job aan. Dit gebeurt in de *CreateJob* methode. 
 ```csharp
         private static async Task RunBatch(ILogger log, ExecutionContext context, string name)
         {
@@ -115,13 +115,13 @@ Hierna gaan we kijken of er al een job bestaat in het Azure Batch Account. Als e
         }
 ```
 
-Een Job heeft een pool heeft nodes nodig welke het werk uitvoeren. We gaan deze dus eerst aanmaken.
+Een Job heeft een pool met nodes nodig welke het werk uitvoeren. We gaan deze dus eerst aanmaken.
 
 * We specificeren het besturingssysteem in dit geval staat de waarde *5* voor *Windows Server 2016* voor de overige waardes check de Azure Guest OS Releases https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-guestos-update-matrix#releases
 * We specificeren een virtuele machine size in dit geval een *standard_d1_v2* voor de overige ondersteunde machines check https://docs.microsoft.com/en-us/azure/batch/batch-pool-vm-sizes#supported-vm-families-and-sizes
 * We specificeren hoeveel tasks er per node gedraaid mogen worden in dit geval 4. Er zullen dus 4 tasks per keer op de node worden gestart.
 * We specificeren welke applicatie er op de node gedraaid dient te worden. Dit moet een applicatie of script zijn welke via de commandline te draaien is. Deze applicatie kan als een zip bestand worden gupload in de portal. 
-* We zetten de lifetime op *PoolLifetimeOption.Job* dit wil zeggen zodra de alle tasks in de Job klaar zijn zal de pool verwijdert worden en zul je dus ook niet meer betalen voor de virtuele machines. 
+* We zetten de lifetime op *PoolLifetimeOption.Job* dit wil zeggen zodra alle tasks in de Job klaar zijn zal de pool verwijdert worden en zul je dus ook niet meer betalen voor de virtuele machines. 
 
 ```csharp
         private static PoolInformation CreatePool()
@@ -178,12 +178,12 @@ Nu we een Pool hebben kunnen we deze koppelen aan de Job. De *CreateJob* methode
         }
 ```
 
-We controlleren eerst of de task al is aangemaakt in en toe is gevoegd aan de job zoniet dan voegen we hem toe aan de job. De naam van de task mag alleen letters en cijfers bevatten en een koppelteken en underscore.
+We controlleren eerst of de task al is aangemaakt en is toegevoegd aan de job, zoniet dan voegen we hem toe. De naam van de task mag alleen letters en cijfers bevatten en een koppelteken en underscore.
 
 Ook stellen we in welke package de task moet starten met welke argumenten. Hier starten we converter.exe met als argument een naam van de blob (in dit geval een xml bestand met wijn data).
 
 De converter.exe bevat alle logica om de xml te verwerken en het resultaat te uploaden in een Azure blob container.
-In de azure portal kun je een package uploaden welke op de nodes geinstalleerd moeten worden. Meer informatie over hoe packages werken met azure batch is te vinden op: https://docs.microsoft.com/en-us/azure/batch/batch-application-packages
+In de Azure portal kan je een package uploaden welke op de nodes geinstalleerd moeten worden. Meer informatie over hoe packages werken met Azure batch is te vinden op: https://docs.microsoft.com/en-us/azure/batch/batch-application-packages
 
 ```csharp
         private static void CreateTaskIfNotExists(BatchClient batchClient, string jobId, string blobName)
@@ -437,11 +437,11 @@ namespace WineConverter
 
 Conclusie
 ---
-Azure batch is echt een serieuze keuze als het gaat om grote hoeveelheden data te verwerken en je wilt in controle zijn wat er allemaal gebeurd.
+Azure batch is echt een serieuze keuze als je grote hoeveelheden data moet verwerken en je wilt in controle zijn wat er allemaal gebeurd.
 Je kan zowel horizontaal als verticaal schalen en het aantal nodes wat het werk kan doen is standaard 20 maar je kunt een request doen voor meer nodes. Voor de recource limieten check de documentatie https://docs.microsoft.com/en-us/azure/batch/batch-quota-limit.
 
 Ik ken zelf weinig projecten waar ze Azure batch gebruiken maar ik ben echt onder de indruk hoe simpel en krachtig Azure batch is plus je betaald alleen voor de tijd dat de nodes ook echt iets doen dus geen vaste maandelijkse kosten.
 
-Deze POC heeft het kwa performance zijn doel wel behaald wat we voor ogen hadden alleen het bevat toch net te veel stappen om het volledig via CI/CD gemakkelijk te deployen. 
+Deze POC heeft het qua performance zijn doel wel behaald wat we voor ogen hadden alleen het bevat toch net te veel stappen om het volledig via CI/CD gemakkelijk te deployen. 
 
 In een volgende blog zal ik de uiteindelijke oplossing uitwerken met verschillende functie apps op een consumption plan welke aan alle eisen voldoet.
