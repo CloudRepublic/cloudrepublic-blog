@@ -30,17 +30,52 @@ Docker Swarm is een tool waarmee je Docker-containers kunt beheren en schalen. A
 Om te berekenen hoeveel managers er mogen uitvallen voordat het cluster niet meer kan functioneren wordt de volgende berekening gebruikt: (N-1/2).
 Bij dus een cluster van 3 manager mag er 1 manager uitvallen en zal het cluster nog steeds functioneren. Docker adviseert om niet meer dan 7 managers te gebruiken om performance issues met het syncrosniseren te voorkomen. Voor meer informatie zie https://docs.docker.com/engine/swarm/raft/
 
-#TODO omschrijven hoe je een cluster opbouwd en er nodes aan toevoegd
+Om een Docker Swarm cluster op te zetten kun je de volgende stappen uitvoeren:
+- Instaleer 5 virtuele machine met bijv. Ubuntu server. Voor de 3 managers hebben we niet hele zware virtuele machines nodig. Een basic A1 1.75 GB RAM volstaat al voor een manager node. 
+Voor de 2 worker nodes zou ik kiezen voor een virtuele machine met 8 GB RAM. 
+- Installeer Docker community edition op alle 5 de servers. Volg de handleiding op https://docs.docker.com/install/linux/docker-ce/ubuntu/. 
+- Op 1 van de manager servers voer het volgende commando uit om Docker Swarm te initialiseren.
+```
+$ docker swarm init --advertise-addr "public ipadres van de server"
+Swarm initialized: current node (bvz81updecsj6wjz393c09vti) is now a manager.
 
-Ik ga hier niet uitleggen hoe je een Docker Swarm cluster moet bouwen, hier zijn hele goede handleidingen voor bijv. in de Docker documentatie https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/ 
+To add a worker to this swarm, run the following command:
+
+    docker swarm join \
+    --token SWMTKN-1-3pu6hszjas19xyp7ghgosyx9k8atbfcr8p2is99znpy26u2lkl-1awxwuwd3z9j1z3puu7rcgdbx \
+    172.17.0.2:2377
+
+To add a manager to this swarm, run 'docker swarm join-token manager' and follow the instructions.
+```
+- Voer het bovenstaande docker swarm join token uit op de 2 nodes. 
+- Voer het comamndo docker swarm join-token manager uit en voer het join commando uit op de overige 2 managers.
+
+Als dit klaar gedaan is heb je een Docker Swarm cluster gemaakt zoals in het onderstaande overzicht is weergegeven.
 
 <img src="/images/Docker-Swarm-overview.png" />
-Een overzicht hoe het cluster eruit ziet met 3 managers en 2 workers.
+Mocht je meer details willen hebben over het opzetten van een Docker Swarm cluster kijk dan op: https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/
 
+Docker swarm zal niet automatisch schalen als de load op je applicatie hoog wordt, wil je meer containers uitrollen van je applicatie kun je dit doen door meer replica's aan te maken. Als je bijv. de service api_api wilt opschalen naar 5 instanties kun je dit doen doormiddel van het volgende commando:
+
+```
+$ docker service scale api_api=5 
+```
+Je kunt de schaling ook regelen in de UI van Portainer.
+<img src="/images/Docker-Swarm-scaling.png" />
+
+Mocht je nu toch te weinig capaciteit hebben kun je eenvoudig een nieuwe virtuele machine inrichten met ubuntu en docker erop installeren. Hierna voer je het docker swarm join commando uit op de server en deze zal het bestaande cluster uitbreiden met de extra capiciteit. 
+```
+docker swarm join \
+    --token SWMTKN-1-3pu6hszjas19xyp7ghgosyx9k8atbfcr8p2is99znpy26u2lkl-1awxwuwd3z9j1z3puu7rcgdbx \
+    172.17.0.2:2377
+```
+Mocht je Docker Swarm op Azure hebben uitgerold kun je gebruik maken van de vm scale sets om automatisch nodes bij je cluster te zetten. Ik heb hier verder nog geen ervaring mee.
 
 Omdat ik Docker Swarm gebruik kan ik de volgende punten afvinken van mijn lijstje:
 - De oplossing moet schaalbaar zijn en bestand zijn tegen het uitvallen of offline gaan van servers. 
-    -- In het cluster zitten 3 managers dus er kan er 1 offline gaan. Ook hebben we 2 workers welke de containers kunnen hosten
+    -- In het cluster zitten 3 managers dus er kan er 1 offline gaan volgens de berekening: "3 managers - 1 = 2  2/2 = 1. 
+    -- Ook hebben we 2 workers welke de containers kunnen hosten. Mocht er 1 offline gaan worden de containers opnieuw gestart op de andere node.
+    -- De manager heeft onder andere als taak om er voor te zorgen dat de containers draaien op 1 of meerdere nodes.
 - Ik wil de oplossing kunnen hosten bij een Cloud provider, Hosting provider of lokaal om te kunnen testen.
     -- Omdat Docker Swarm standaard in elke Docker installatie zit kan het zonder verdere installatie van tools gebruikt worden overal waar je Docker hebt geïnstalleerd.  
 
@@ -54,34 +89,7 @@ Wat is Traefik
 ---
 Traefik is een opensource router welke speciaal is ontworpen voor container oplossingen. Traefik wordt als global service op elke manager gedeployed op het cluster. Dit wil zeggen elke node met als rol manager krijgt een Traefik container. De reden dat Traefik op de manager nodes gedeployed dient te worden is dat de Docker api wordt uitgelezen. Zodra er een container bij komt en deze is geconfigureerd met de Traefik labels kan Traefik de labels van de container uitlezen en een virtuele host aanmaken voor de container en een SSL-certificaat aanvragen bij Let's Encrypt. Zodoende is de container beschikbaar voor de buitenwereld met een SSL-certificaat.
 
-Voor meer informatie over Traefik zie https://traefik.io/
-
-Omdat ik Traefik gebruik als reverse proxy kan ik de volgende punten afvinken van mijn lijstje:
-- Er moeten meerdere web applicaties op kunnen draaien welke op poort 80 en 443 benaderd kunnen worden.
-    -- Doordat Traefik de labels van containers kan uitlezen maakt het automatisch virtuele hosts aan.
-- Alle webapplicaties moeten draaien op ssl, dit moet mij zo min mogelijk werk kosten.
-    -- Traefik ondersteund out of the box Let's Encrypt SSL-certificaten.
-
-Wat is Portainer
----
-Portainer is eeen opensource web interface om je Docker te beheren en om nieuwe containers uit te rollen en te updaten en bevat nog veel meer functionaliteiten. Ik ga hier niet in diepte behandelen wat Portainer allemaal kan voor meer informatie over portainer kun je terecht op https://www.portainer.io/. 
-Portainer dient ook op een node welke een manager geïnstalleerd te worden omdat Portainer ook via de Docker api het cluster beheerd. Tevens is er Portainer agent beschikbaar welke als global service gedeployed dient te worden op alle nodes zodat Portainer ook weet heeft welke containers op welke nodes draaien.
-
-Omdat ik Portainer gebruik als beheer tool kan ik het laatste punt afvinken van mijn lijstje:
-- Het beheren van de containers moet gemakkelijk en overzichtelijk zijn. 
-
-De combinatie van Docker Swarm, Traefik, Let's Encrypt en Portainer
----
-We hebben het hierboven gehad over Docker Swarm, Traefik, Let's Encrypt en Portainer maar hoe ziet dat landschap er nu uit. 
-In de volgende afbeelding heb ik een overzicht van het landschap zoals hierboven omschreven.
-
-<img src="/images/Docker-Swarm-landschap.png" />
-
-Het verkeer komt via het internet uit op de Azure Traffic Manager Het kan ook via een DNS Round-robin alleen de Azure Traffic Manager controleert of de docker node beschikbaar is. Zodra de node niet beschikbaar is wegens onderhoud of een storing zal er geen verkeer naar de node worden gestuurd.
-
-Het verkeer komt binnen op de Traefik loadbalancer welke de Reverse proxy en de SSL-certificaten verzorgd. Traefik weet welk request er naar welke container gestuurd moet worden door middel van de labels welke zijn ingesteld bij het deployen van de stack\*\* of service\*. 
-
-Zie hier een voorbeeld Docker-compose file om een Traefik container te deployen als stack\*\* op Docker Swarm.
+Zie hier een voorbeeld Docker-compose file om een Traefik container te deployen als stack\*\* op het Docker Swarm cluster.
 ``` yaml
 version: '3.7'
 services:
@@ -155,7 +163,12 @@ volumes:
   traefik_certs: {}
 ```
 
-Een kleine samenvatting wat er gebeurd in dit Docker-compose bestand:
+Om de stack* uit te rollen voeren we het volgende commando uit om een manager node: 
+```
+docker stack deploy -c docker-compose.traefik.yml proxy
+```
+
+Een kleine samenvatting wat er gebeurt in dit Docker-compose bestand:
 
 - We maken een container aan op basis van traefik:1.7.13.
 - We publiseren poort 80 en 443.
@@ -166,11 +179,28 @@ Een kleine samenvatting wat er gebeurd in dit Docker-compose bestand:
 - We regelen de webui van Traefik in.
 - We maken een netwerk aan genaamd Public van het type overlay. 
 
-Om de stack* uit te rollen voeren we het volgende commando uit om een manager node: 
-```
-docker stack deploy -c docker-compose.traefik.yml proxy
-```
 
+Voor meer informatie over Traefik zie https://traefik.io/
+
+Omdat ik Traefik gebruik als reverse proxy kan ik de volgende punten afvinken van mijn lijstje:
+- Er moeten meerdere web applicaties op kunnen draaien welke op poort 80 en 443 benaderd kunnen worden.
+    -- Doordat Traefik de labels van containers kan uitlezen maakt het automatisch virtuele hosts aan.
+- Alle webapplicaties moeten draaien op ssl, dit moet mij zo min mogelijk werk kosten.
+    -- Traefik ondersteund out of the box Let's Encrypt SSL-certificaten.
+
+Wat is Portainer
+---
+Portainer is eeen opensource web interface om je Docker te beheren zowel lokaal als remote. Met Portainer kun je de volgende Docker concepten beheren:  
+- Containers
+- Images
+- Networks
+- Volumes
+- Services
+- Swarm Cluster
+
+<img src="/images/Docker-Swarm-portainer-dashboard.png" />
+
+Portainer dient ook op een node welke een manager geïnstalleerd te worden omdat Portainer ook via de Docker api het cluster beheerd. Tevens is er Portainer agent beschikbaar welke als global service gedeployed dient te worden op alle nodes zodat Portainer ook weet heeft welke containers op welke nodes draaien.
 
 Zie hier een voorbeeld Docker-compose file om een Portainer container en een Portainer agent te deployen als stack** op Docker Swarm.
 
@@ -222,7 +252,15 @@ volumes:
   portainer-data: {}
 
 ```
-Een kleine samenvatting wat er gebeurd in dit Docker-compose bestand:
+Om de stack** uit te rollen voeren we het volgende commando uit om een manager node: 
+```
+docker stack deploy -c docker-compose.portainer.yml portainer
+```
+
+Vanaf nu kunnen we Portainer benaderen op de URL https://portainer.yourdomain.com en kunnen we hier vandaan de rest van de services\* en stacks\*\* deployen en beheren.
+
+
+Een kleine samenvatting wat er gebeurt in dit Docker-compose bestand:
 
 - We maken een container aan op basis van portainer/portainer en portainer/agent.
 - We publiceren poort 9000 voor de UI.
@@ -232,13 +270,62 @@ Een kleine samenvatting wat er gebeurd in dit Docker-compose bestand:
 - We maken een netwerk aan met de naam Private en koppelen dit aan de agent en de Portainer UI.
 - We koppelen de Portainer UI ook aan het netwerk Public wat we hebben aangemaakt in de Traefik deploy.
 
-Om de stack** uit te rollen voeren we het volgende commando uit om een manager node: 
-```
-docker stack deploy -c docker-compose.portainer.yml portainer
+
+
+
+Voor meer informatie over portainer kijk op: https://www.portainer.io/. 
+
+Omdat ik Portainer gebruik als beheer tool kan ik het laatste punt afvinken van mijn lijstje:
+- Het beheren van de containers moet gemakkelijk en overzichtelijk zijn. 
+
+De combinatie van Docker Swarm, Traefik, Let's Encrypt en Portainer
+---
+We hebben het hierboven gehad over Docker Swarm, Traefik, Let's Encrypt en Portainer maar hoe ziet dat landschap er nu uit. 
+In de volgende afbeelding heb ik een overzicht van het landschap zoals hierboven omschreven.
+
+<img src="/images/Docker-Swarm-landschap.png" />
+
+Ik heb gekozen om Azure Traffic Manager te gebruiken als loadbalancer voor om het verkeer te verdelen tussen de 3 verschillende managers. De gedachte hier achter is grotendeels dat het een erg goedkope service is in Azure en het werkt ook met externe endpoints.
+
+Ik heb 3 endpoints gedefineerd in de Azure Traffic Manager 1 endpoint voor elke manager.
+Ik heb Azure Traffic Manager ingeregeld dat hij voor de beste performance kiest. Je kan een protocol, poort en eventueel een pad opgeven wat hij moet controlleren. Mocht het endpoint niet meer beschikbaar zijn zal er geen verkeer meer naar toe gestuurd worden. Dus als er eens toring of een update is van een manager zal er geen downtime zijn in de applicatie.
+
+<img src="/images/Docker-Swarm-traffic-manager-configuration.png" />
+
+
+Hierna komt het verkeer binnen op de Traefik loadbalancer welke de Reverse proxy en de SSL-certificaten verzorgd. Traefik weet welk request er naar welke container gestuurd moet worden door middel van de labels welke zijn ingesteld bij het deployen van de stack\*\* of service\*. 
+
+Zie hier een voorbeeld Docker-compose file met labels om een Docker container met een webapplicatie te deployen als stack** op een Docker Swarm cluster.
+```yml
+  version: '3.7'
+
+services:
+  web:
+    image: marcoippel/web:0.1
+    environment: 
+      - ASPNETCORE_URLS=http://+:5000
+    networks:
+      - public
+    deploy:
+      placement:
+        constraints:
+          - node.role == worker
+      labels:
+        - traefik.frontend.rule=Host:test.${DOMAIN}
+        - traefik.enable=true
+        - traefik.port=80
+        - traefik.tags=public
+        - traefik.docker.network=public
+        - traefik.redirectorservice.frontend.entryPoints=http
+        - traefik.redirectorservice.frontend.redirect.entryPoint=https
+        - traefik.webservice.frontend.entryPoints=https
+
+networks:
+  public:
+    external: true
 ```
 
-Vanaf nu kunnen we Portainer benaderen op de URL https://portainer.yourdomain.com en kunnen we hier vandaan de rest van de services\* en stacks\*\* deployen en beheren.
-
+Het Docker-compose bestand kan in Portainer als stack gedeployed worden op het cluster.
 
 Conclusie
 ---
