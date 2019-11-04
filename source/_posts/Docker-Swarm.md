@@ -10,25 +10,33 @@ tags:
 
 Case omschrijving 
 ---
-Niet lang geleden heb ik besloten om me eens goed te gaan verdiepen in Docker. Je hoort het overal en het wordt steeds populairder en ik wilde eens gaan kijken wat hier nu zo vet aan is. Ik ben begonnen om me te certificeren, ik heb een cursus gevolgd en mijn examen met succes behaald. Ik vind het altijd belangrijk om te weten hoe iets in elkaar zit en waarom het zo in elkaar zit. Mijn idee is om een of meerdere productie applicaties op een Docker Swarm cluster te gaan draaien. In deze blog ga ik laten zien hoe ik een goede infrastructuur bouw om de applicaties te hosten. 
+Niet lang geleden heb ik besloten om mij eens goed te gaan verdiepen in Docker. Je hoort het overal en het wordt steeds populairder en en ik hoor steeds vaker dat het een goed alternatief is voor de huidige manier van werken namelijk Faas en Paas in een public cloud hierdoor ben ik nieuwsgierig geworden en wil ik eens kijken wat hier nu de voordelen van zijn. Ik ben begonnen om mij te certificeren, ik heb een cursus gevolgd en mijn examen met succes behaald. Ik vind het altijd belangrijk om te weten hoe iets in elkaar zit en waarom het zo in elkaar zit. Mijn idee is om een of meerdere productie applicaties op een Docker Swarm cluster te gaan draaien. In deze blog ga ik laten zien hoe ik een goede infrastructuur bouw om de applicaties te hosten.
 
-De omgeving moets aan de volgende voorwaarden voldoen:
+De omgeving moest aan de volgende voorwaarden voldoen:
 
 - Er moeten meerdere web applicaties op kunnen draaien welke op poort 80 en 443 benaderd kunnen worden.
-- Alle web applicaties moeten draaien op SSL, dit moet me zo min mogelijk werk kosten.
+- Alle web applicaties moeten draaien op SSL, dit moet mij zo min mogelijk werk kosten.
 - De oplossing moet schaalbaar zijn en bestand zijn tegen het uitvallen en/of offline gaan van servers.
 - Ik wil de oplossing kunnen hosten bij een Cloud provider, Hosting provider of lokaal om te kunnen testen.
 - Het beheren van de containers moet gemakkelijk en overzichtelijk zijn.
-- Aangezien ik een echte Hollander ben moeten de kosten ook een beetje beperkt blijven. 
+- Aangezien ik een echte Hollander ben moeten de kosten ook een beetje beperkt blijven.
 
 De oplossing welke ik gemaakt heb is een combinatie van Docker Swarm, Traefik, Let's Encrypt en Portainer.
 
 Wat is Docker Swarm
 ---
-Docker Swarm is een tool waarmee je Docker-containers kunt beheren en schalen. Als je Docker installeert dan krijg je daar meteen Swarm bij. Docker Swarm is een standaard product van Docker wat bij elke installatie van Docker wordt meegeleverd. Met Docker Swarm kun je een cluster bouwen van verschillende virtuele machines deze worden hierna nodes genoemd. Hierop kunnen de Docker-containers worden gedeployed als een stack\*\* of een service\*. Als je een cluster wilt hebben wat een hoge beschikbaarheid heeft wordt aangeraden om minstens 3 manager nodes te hebben. Ik ga hier niet uitleggen hoe je een Docker Swarm cluster moet bouwen, hier zijn hele goede handleidingen voor bijv. in de Docker documentatie https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/ 
+Docker Swarm is een tool waarmee je Docker-containers kunt beheren en schalen. Als je Docker installeert dan krijg je daar meteen Swarm bij. Docker Swarm is een standaard product van Docker wat bij elke installatie van Docker wordt meegeleverd. Met Docker Swarm kun je een cluster bouwen van verschillende virtuele machines deze worden hierna nodes genoemd. Hierop kunnen de Docker-containers worden gedeployed als een stack\*\* of een service\*. Als je een cluster wilt hebben wat een hoge beschikbaarheid heeft wordt aangeraden om minstens 3 manager nodes te hebben. Docker Swarm maakt namelijk gebruik van het Raft Consensus Algoritme, 1 manager is de leider van de swarm en de status van de manager wordt gesyncroniseerd over de overige managers. Mocht de leider niet meer beschikbaar zijn om wat voor reden dan ook kan een andere manager zijn taken over nemen.
+
+Om te berekenen hoeveel managers er mogen uitvallen voordat het cluster niet meer kan functioneren wordt de volgende berekening gebruikt: (N-1/2).
+Bij dus een cluster van 3 manager mag er 1 manager uitvallen en zal het cluster nog steeds functioneren. Docker adviseert om niet meer dan 7 managers te gebruiken om performance issues met het syncrosniseren te voorkomen. Voor meer informatie zie https://docs.docker.com/engine/swarm/raft/
+
+#TODO omschrijven hoe je een cluster opbouwd en er nodes aan toevoegd
+
+Ik ga hier niet uitleggen hoe je een Docker Swarm cluster moet bouwen, hier zijn hele goede handleidingen voor bijv. in de Docker documentatie https://docs.docker.com/engine/swarm/swarm-tutorial/create-swarm/ 
 
 <img src="/images/Docker-Swarm-overview.png" />
 Een overzicht hoe het cluster eruit ziet met 3 managers en 2 workers.
+
 
 Omdat ik Docker Swarm gebruik kan ik de volgende punten afvinken van mijn lijstje:
 - De oplossing moet schaalbaar zijn en bestand zijn tegen het uitvallen of offline gaan van servers. 
@@ -51,7 +59,7 @@ Voor meer informatie over Traefik zie https://traefik.io/
 Omdat ik Traefik gebruik als reverse proxy kan ik de volgende punten afvinken van mijn lijstje:
 - Er moeten meerdere web applicaties op kunnen draaien welke op poort 80 en 443 benaderd kunnen worden.
     -- Doordat Traefik de labels van containers kan uitlezen maakt het automatisch virtuele hosts aan.
-- Alle webapplicaties moeten draaien op ssl, dit moet me zo min mogelijk werk kosten.
+- Alle webapplicaties moeten draaien op ssl, dit moet mij zo min mogelijk werk kosten.
     -- Traefik ondersteund out of the box Let's Encrypt SSL-certificaten.
 
 Wat is Portainer
