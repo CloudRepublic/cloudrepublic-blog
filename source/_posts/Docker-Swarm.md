@@ -63,7 +63,7 @@ $ docker service scale api_api=5
 Je kunt de schaling ook regelen in de UI van Portainer.
 <img src="/images/Docker-Swarm-scaling.png" />
 
-Mocht je nu toch te weinig capaciteit hebben kun je eenvoudig een nieuwe virtuele machine inrichten met ubuntu en docker erop installeren. Hierna voer je het Docker Swarm join commando uit op de server en deze zal het bestaande cluster uitbreiden met de extra capaciteit. 
+Mocht je nu toch te weinig capaciteit hebben in je cluster kun je eenvoudig een nieuwe virtuele machine inrichten met Ubuntu en Docker erop installeren. Hierna voer je het Docker Swarm join commando uit op de server en deze zal het bestaande cluster uitbreiden met de extra capaciteit. 
 ```
 docker swarm join \
     --token SWMTKN-1-3pu6hszjas19xyp7ghgosyx9k8atbfcr8p2is99znpy26u2lkl-1awxwuwd3z9j1z3puu7rcgdbx \
@@ -290,7 +290,7 @@ Ik heb Azure Traffic Manager ingeregeld dat hij voor de beste performance kiest.
 <img src="/images/Docker-Swarm-traffic-manager-configuration.png" />
 
 
-Hierna komt het verkeer binnen op de Traefik loadbalancer welke de Reverse proxy en de SSL-certificaten verzorgd. Traefik weet welk request er naar welke container gestuurd moet worden door middel van de labels welke zijn ingesteld bij het deployen van de stack\*\* of service\* en docker maakt intern gebruikt van zijn eigen DNS server zodat er bekend is welke container er op welke node draait. 
+Hierna komt het verkeer binnen op de Traefik loadbalancer welke de Reverse proxy en de SSL-certificaten verzorgd. Traefik weet welk request er naar welke container gestuurd moet worden door middel van de labels welke zijn ingesteld bij het deployen van de stack\*\* of service\* en Docker maakt intern gebruikt van zijn eigen DNS server zodat er bekend is welke container er op welke node draait. 
 
 Zie hier een voorbeeld Docker-compose file met labels om een Docker container met een webapplicatie te deployen als stack** op een Docker Swarm cluster.
 ```yml
@@ -340,8 +340,7 @@ De kosten voor de Azure Traffic Manager zijn: Eerste 1 miljard DNS-query's/maand
 
 Zoals je ziet in het overzicht 3 providers waarvan Digital Ocean en Azure echt serieuze cloud providers zijn met veel meer services dan alleen virtuele machines. Azure biedt een uptime van 99,9% en Digital Ocean een uptime van 99,99% dit is ook iets waar je voor betaald. Zo zie je dat voor iedereen zijn portemonnee een oplossing is. 
 
-Mocht je toch niet tevreden zijn met de service van je hosting provider dan is het heel gemakkelijk om je infrastructuur op te pakken en deze gewoon bij een andere provider te hosten. 
-
+Mocht je toch niet tevreden zijn met de service van je hosting provider dan is het heel gemakkelijk om je infrastructuur op te pakken en deze gewoon bij een andere provider te hosten. Het zijn namelijk gewoon container images en yaml files voor de configuratie en je bent in een mum van tijd weer up en running. 
 
 \* Een service is een image van een microservice in de context van een grotere toepassing.
 \** Een stack is een Docker-compose file met services gedefinieerd welke in een keer uitgerold kan worden.
