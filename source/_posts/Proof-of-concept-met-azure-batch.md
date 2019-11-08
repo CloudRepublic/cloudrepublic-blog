@@ -1,43 +1,42 @@
 ---
 title: Proof of concept met Azure Batch
-date: 2019-05-01 19:54:37
+date: 2019-06-27 19:54:37
 tags:
 ---
 
 Case omschrijving 
 ---
 
-Net als in mijn vorige blog post (https://cloudrepublic.github.io/2019/03/28/Proof-of-concept-met-durable-functions/) heb ik een Proof of Concept gemaakt om grote hoeveelheden XML bestanden te transformeren het gaat dan 3000 bestanden per keer met een totale grote van 18 gigabyte. Voor dit artikel kan ik wegens privacy niet de echte data gebruiken en heb ik een dataset gebruikt van https://www.kaggle.com/datasets het gaat hier om een dataset met landen en de wijnen welke uit het desbetreffende land komen. 
+Net als in mijn vorige [blog post](https://cloudrepublic.github.io/2019/03/28/Proof-of-concept-met-durable-functions/) heb ik een Proof of Concept gemaakt om grote hoeveelheden XML bestanden te transformeren, het gaat dan 3000 bestanden per keer met een totale grote van 18 gigabyte. Voor dit artikel kan ik wegens privacy redenen niet de echte data gebruiken en heb ik een dataset gebruikt van https://www.kaggle.com/datasets. Het gaat hier om een dataset van landen en de wijnen.
 
-Het doel is om de wijnen uit de XML dump te halen en deze om te zetten naar een JSON formaat en deze bestanden te uploaden in een blob container. We krijgen dus per wijn een JSON bestand in een blob container. Dit alles moet gebeuren op basis Azure Batch met een Azure Function als orchestrator
+Het doel is om de wijnen uit de XML dump te halen en deze om te zetten naar een JSON formaat en deze bestanden te uploaden in een blob container. We krijgen dus per wijn een JSON bestand in een blob container. Dit alles moet gebeuren op basis Azure Batch met een Azure Function als orchestrator.
 
 Wat is de opzet van de POC
 ---
-We gaan de xml bestanden transformeren doormiddel van een Azure Batch component en we starten en beheren de Azure Batch doormiddel van een Azure Function.
-De Azure Function zal de xml bestanden toevoegen aan een Job in Azure Batch doormiddel van een [event grid trigger](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-grid) en via een httptrigger is de voortgang te zien van het batch proces. 
+We gaan de XML bestanden transformeren doormiddel van een Azure Batch component en we starten en beheren de Azure Batch doormiddel van een Azure Function.
+De Azure Function zal de XML bestanden toevoegen aan een Job in Azure Batch doormiddel van een [event grid trigger](https://docs.microsoft.com/en-us/azure/azure-functions/functions-bindings-event-grid) en via een httptrigger is de voortgang te zien van het batch proces. 
 
 <img src="/images/azure-batch-overview.png" />
 
 Wat is Azure Batch
 ---
-Azure Batch is plat gezegd eigenlijk een beheer tool om virtuele machines mee te beheren. Elk van deze machines kan een taak oppakken en dit als input gebruiken voor een commandline applicatie en het resultaat uploaden in een blob container. 
+Azure Batch is plat gezegd eigenlijk een beheer tool voor virtuele machines. Elk van deze machines kan een taak oppakken en dit als input gebruiken voor een commandline applicatie en het resultaat uploaden in bijvoorbeeld een blob container. 
 
 Voor de complete omschrijving wat je met Azure Batch kunt doen verwijs ik je graag door naar de Microsoft site https://azure.microsoft.com/nl-nl/services/batch/
 
-Hoe werkt dit nu eigenlijk allemaal
+Hoe werkt het Proof of Concept
 ---
 
 Azure Batch bestaat uit een aantal componenten.
 
 * Een Task is een opdracht welke uitgevoerd dient te worden op een node. 
 * Een Job is een verzameling van tasks. Aan een Job hangt ook een Pool.
-* Een Pool is een verzameling van nodes
+* Een Pool is een verzameling van nodes.
 * Een Node is een virtuele machine welke een van de tasks gaat uitvoeren. 
 
+Ik heb 40 bestanden met landen en wijnen. 1 bestand is ongeveer 75 mb groot. Voor testdoeleinden zijn dit dezelfde bestanden met een andere naam. Dit is meer om een gelijkwaardige load op de functie te krijgen als bij de echte POC.
 
-Ik heb 40 bestanden met landen en wijnen. 1 bestand is ongeveer 75 mb groot. Voor test doeleinde zijn dit dezelfde bestanden met een andere naam. Dit is meer om een gelijkwaardige load op de functie te krijgen als bij de echte POC.
-
-Ik heb een Azure Function welke een event grid trigger heeft welke afgaat op het moment er een bestand wordt geupload in de blobcontainer.
+Ik heb een Azure Function welke een event grid trigger heeft welke afgaat op het moment dat er een bestand wordt geupload in de blobcontainer.
 ```csharp
         [FunctionName("BatchOrchestrator")]
         public static async Task Run(
@@ -52,7 +51,7 @@ Ik heb een Azure Function welke een event grid trigger heeft welke afgaat op het
            await RunBatch(log, context, name);
         }
 ```
-De bestandsnaam wordt uit de url gehaald en door gestuurd naar de methode RunBatch. 
+De bestandsnaam wordt uit de URL gehaald en doorgestuurd naar de methode RunBatch. 
 De methode RunBatch initialiseert een BatchClient met de credentials welke opgegeven zij in de config.
 ```csharp
         private static async Task RunBatch(ILogger log, ExecutionContext context, string name)
@@ -180,7 +179,7 @@ Nu we een Pool hebben kunnen we deze koppelen aan de Job. De *CreateJob* methode
 
 We controlleren eerst of de task al is aangemaakt en is toegevoegd aan de job, zoniet dan voegen we hem toe. De naam van de task mag alleen letters en cijfers bevatten en een koppelteken en underscore.
 
-Ook stellen we in welke package de task moet starten met welke argumenten. Hier starten we converter.exe met als argument een naam van de blob (in dit geval een xml bestand met wijn data).
+Ook stellen we in welke package de task moet starten met welke argumenten. Hier starten we converter.exe met als argument een naam van de blob (in dit geval een XML bestand met wijn data).
 
 De converter.exe bevat alle logica om de xml te verwerken en het resultaat te uploaden in een Azure blob container.
 In de Azure portal kan je een package uploaden welke op de nodes geinstalleerd moeten worden. Meer informatie over hoe packages werken met Azure batch is te vinden op: https://docs.microsoft.com/en-us/azure/batch/batch-application-packages
@@ -437,7 +436,7 @@ namespace WineConverter
 
 Conclusie
 ---
-Azure batch is echt een serieuze keuze als je grote hoeveelheden data moet verwerken en je wilt in controle zijn wat er allemaal gebeurd.
+Azure batch is echt een serieuze keuze als je grote hoeveelheden data moet verwerken en je wilt in controle zijn wat er allemaal gebeurt.
 Je kan zowel horizontaal als verticaal schalen en het aantal nodes wat het werk kan doen is standaard 20 maar je kunt een request doen voor meer nodes. Voor de recource limieten check de documentatie https://docs.microsoft.com/en-us/azure/batch/batch-quota-limit.
 
 Ik ken zelf weinig projecten waar ze Azure batch gebruiken maar ik ben echt onder de indruk hoe simpel en krachtig Azure batch is plus je betaald alleen voor de tijd dat de nodes ook echt iets doen dus geen vaste maandelijkse kosten.
