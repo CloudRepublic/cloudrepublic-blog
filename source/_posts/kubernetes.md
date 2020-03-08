@@ -16,7 +16,13 @@ Hier komt de omschrijving.
 Waarom heb ik Kubernetes nodig
 ---
 
-Ik hoor vaak het argument waarom zou ik kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas](https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. Er is een quote "Als je alleen een hamer hebt, neig je ernaar elk probleem te zien als een spijker." Je kan een hele hoop oplossingen kwijt in Paas en Faas maar niet voor alles is Paas of Faas de juiste oplossing bijv.
+Ik hoor vaak het argument waarom zou ik kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas]
+(https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
+
+<img src="/images/kubernetes_hamer.jpeg" />
+
+__<p style="text-align: center;">"Als je alleen een hamer hebt, neig je ernaar elk probleem te zien als een spijker."</p>__
+Je kan een hele hoop oplossingen kwijt in Paas en Faas maar niet voor alles is Paas of Faas de juiste oplossing bijv.
 
 - Als je complexe architecturen hebt kan dit een uitdaging zijn.
 - Als je volledige controle wilt hebben over je infrastructuur.
@@ -25,6 +31,8 @@ Ik hoor vaak het argument waarom zou ik kubernetes gebruiken wij hebben alles vi
 - Kubernetes is ook mogelijk in je eigen datacentrum.
 - De applicaties zijn schaalbaar tot ... instanties.
 - Je hebt een standaard deploy methode voor elke applicatie.
+
+
 
 Wat is Kubernetes
 ---
@@ -77,7 +85,7 @@ Hoe begin je met Kubernetes
 
 Nou het eenvoudigste is eigenlijk neem een managed instantie bij een cloud provider. Bij een managed instantie hoef je je niet meer druk te maken over de installatie en configuratie van het cluster. Het kost namelijk een hele hoop tijd om een goed werkend en een veilig cluster te bouwen. Je moet het cluster blijven monitoren of het nog goed werkt en zelf alerts instellen om op de hoogte gehouden te worden als het cluster niet goed functioneert. Omdat kubernetes zo uitgebreidt is kan er ook ontzettend veel misgaan en dan moet je het zelf troubleshooten en oplossen.
 
-Er zijn heel veel smaakjes van kubernetes te krijgen bijv.
+Er zijn heel veel varianten van kubernetes te krijgen enkele voorbeelden zijn bijv.
 
 - Azure Kubernetes Service (AKS)
 - Amazon Elastic Kubernetes Service (EKS)
@@ -88,16 +96,9 @@ Ik ga het hier verder over AKS hebben dit is de managed Kubernetes oplossing van
 
 Wat is AKS
 ---
+AkS staat voor Azure Kubernetes Service en is een managed service van Azure om je Kubernetes workload op te draaien. AKS is volledig in Azure geïntegreerd het maakt bijv. gebruik van azure monitoring en alerting. Je kan bijv. zien hoe je cluster erbij staat en hoe je containers draaien. Je kunt op container niveau inloggen en de logs bekijken. Ook kun je doormiddel van een terminal direct inloggen op de container. Azure DevOps heeft een hele goede integratie met AKS. 
 
-Wat is een Nginx ingress controller
----
-
-Wat is Let's Encrypt
----
-
-Let's Encrypt is een certificaatautoriteit opgericht op 16 april 2016. Het geeft X.509 certificaten uit voor het Transport Layer Security (TLS) encryptie-protocol, zonder dat dit kosten met zich meebrengt. De certificaten worden uitgegeven via een geautomatiseerd proces dat is ontworpen om het tot nu toe complexe proces van handmatige validatie, ondertekening, installatie en hernieuwing van certificaten voor beveiligde websites te elimineren. ([Wikipedia](https://nl.wikipedia.org/wiki/Let%27s_Encrypt))
-
-Voor meer informatie over Let's Encrypt zie https://letsencrypt.org/
+<img src="/images/Kubernetes_azure_monitor.png" />
 
 Conclusie
 ---
