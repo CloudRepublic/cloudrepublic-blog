@@ -16,8 +16,7 @@ Hier komt de omschrijving.
 Waarom heb ik Kubernetes nodig
 ---
 
-Ik hoor vaak het argument waarom zou ik kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas]
-(https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
+Ik hoor vaak het argument waarom zou ik kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas](https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
 
 <img src="/images/kubernetes_hamer.jpeg" />
 
@@ -39,13 +38,13 @@ Wat is Kubernetes
 
 Kubernetes is heel plat gezegd een beheer tool voor je containers. Kubernetes kan je onder andere helpen met de volgende zaken:
 
-## Wat kan kubernetes doen voor je
-
-### Service discovery en loadbalancing
+#### Service discovery en loadbalancing
 
 Kubernetes kan de load van applicaties verdelen over de verschillende instanties van de applicatie zodat de load verdeelt wordt over de verschillende instanties. Als je applicatie gaat schalen zullen de nieuwe instanties worden toegevoegd aan de interne loadbalanacer.
 
-### Storage orchestration
+<img src="/images/kubernetes_service_discovery.png" />
+
+#### Storage orchestration
 
 In Kubernetes heb je de mogelijkheid om een gedeelde storage in te stellen op je cluster. Stel je voor dat je een MySql server draait dan wil je niet dat als je MySql container stuk gaat dat je je database weg is. Deze kan je dan op een storage zetten. Hierdoor gaat je data nooit verloren als je container verwijder wordt.
 Er zijn veel providers welke ondersteuning bieden aan Kubernetes:
@@ -59,23 +58,23 @@ Er zijn veel providers welke ondersteuning bieden aan Kubernetes:
 
 Voor een complete lijst kijk op [Types of Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
 
-### Geautomatiseerd applicaties updaten en terug rollen
+#### Geautomatiseerd applicaties updaten en terug rollen
 
 In kubernetes kun je geautomatiseerd je applicaties updaten zonder downtime. Je kan opgeven hoeveel pods er offline mogen zijn tijdens een update van de applicatie. Je kunt ook opgeven dat er extra pods moeten worden aangemaakt tijdens de update zodoende blijft je applicatie op de gewenste hoeveelheid instanties. 
 Mocht de nieuwe versie toch niet goed zijn is deze gemakkelijk terug te rollen. Kubernetes houd een history bij van de gedeployde versies.
 
-### Automatische verdeling van resources
+#### Automatische verdeling van resources
 
 Kubernetes verdeeldt automatisch de load over de nodes gebaseerd op de recourse requirements en de beschikbaarheid op de nodes. Nodes kunnen worden voorzien van labels zodat alleen bepaalde workloads daar mogen draaien.
 
-### Automatisch herstellend
+#### Automatisch herstellend
 
 Mocht er een workload niet meer goed functioneren dan kan Kubernetes zelf een nieuwe versie van de pod opstarten. Of de pod nog goed functioneerd kan op meerdere manieren gecontroleerd worden.
 
 - In een Dockerfile is een ENTRYPOINT gedefineerd zodra dit process niet meer beschikbaar is zal de pod gestopt worden.
 - In een pod definitie kan je een livenessProbe instellen met bijv. een url welke gecontroleerd word als de resonse van de URL anders is dan een status code 200 zal de pod als unhealthy worden gezien.
 
-### Secret en configuration beheer
+#### Secret en configuration beheer
 
 In kubernetes kun je secrets en configuraties aanmaken welke dan gebruikt kunnen worden in de applicaties. Deze objecten zijn op alle nodes beschikbaar en worden beheerd door kubernetes. Secrets en configuraties kunnen worden uitgelezen als environment variabelen of als een volume worden gemount in de pod.
 
