@@ -96,9 +96,221 @@ Ik ga het hier verder over AKS hebben dit is de managed Kubernetes oplossing van
 
 Wat is AKS
 ---
-AkS staat voor Azure Kubernetes Service en is een managed service van Azure om je Kubernetes workload op te draaien. AKS is volledig in Azure geïntegreerd het maakt bijv. gebruik van azure monitoring en alerting. Je kan bijv. zien hoe je cluster erbij staat en hoe je containers draaien. Je kunt op container niveau inloggen en de logs bekijken. Ook kun je doormiddel van een terminal direct inloggen op de container. Azure DevOps heeft een hele goede integratie met AKS. 
+AkS staat voor Azure Kubernetes Service en is een managed service van Azure om je Kubernetes workload op te draaien. AKS is volledig in Azure geïntegreerd het maakt bijv. gebruik van azure monitoring en alerting. Je kan bijv. zien hoe je cluster erbij staat en hoe je containers draaien. Je kunt op container niveau inloggen en de logs bekijken. Ook kun je doormiddel van een terminal direct inloggen op de container. Azure DevOps heeft een hele goede integratie met AKS.
 
 <img src="/images/Kubernetes_azure_monitor.png" />
+
+Hoe installeer je AKS
+---
+AKS kun je volledig installeren doormiddel van de azure cli, voer de onderstaande commando's uit om aks te installeren.
+
+```bash
+# maak een resource groep aan.
+az group create --name kubernetesdemo --location west-europe
+
+# maak een kubernetes cluster aan met twee workers.
+az aks create --resource-group kubernetesdemo --name demo --node-count 2 --enable-addons monitoring --generate-ssh-keys
+
+# installeer kubectl als deze nog niet id geinstalleerd
+az aks install-cli
+
+# haal de credentials op van je cluster en voeg deze toe aan je kubectl config
+az aks get-credentials --resource-group kubernetesdemo --name demo
+
+```
+
+Nu ben je klaar om applicaties te deployen op Kubernetes.
+
+Hoe deploy je applicaties op Kubernetes
+---
+Kubernetes bestaat uit verschillende componenten bijv.
+
+- Een ingresscontroller is een soort van reverse proxy welke het verkeer op basis van de inkomende url het verkeer naar een bepaalde service kan sturen.
+- Een service is een object wat een pod exposed naar buiten. De reden dat je hier een appart object voor gebruikt wordt is dat als je een pod connect op het ipadres en de pod wordt verplaatst naar een andere node dan krijg je een nieuw ipadress.
+- Een deployment is de desired state configuratie van de pod.
+- In een replicaset staat gedefineerd hoeveel pods er moeten draaien.
+- Een pod is een wrapper om een of meerdere containers.
+
+Om dus een applicatie te deployen zijn er meerdere componenten nodig. Als voorbeeld nemen we een wordpress applicatie welke er als volgt uit ziet.
+
+<img src="/images/kubernetes_wordpress_overview.png" />
+
+hiervoor is de volgende yaml nodig:
+
+```yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: wordpress
+spec: {}
+status: {}
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: demo 
+  namespace: wordpress
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+  - host: demo-kubernetes.westeurope.cloudapp.azure.com
+    http:
+      paths:
+      - backend:
+          serviceName: wordpress
+          servicePort: 80
+        path: /
+---
+apiVersion: v1
+data:
+  password: d2Vsa29tMDE=
+kind: Secret
+metadata:
+  creationTimestamp: null
+  name: mysql-pass
+  namespace: wordpress
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress-mysql
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: wordpress
+    tier: mysql
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress-mysql
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: mysql
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 3306
+          name: mysql
+        volumeMounts:
+        - name: mysql-persistent-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-persistent-storage
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  ports:
+    - port: 80
+  selector:
+    app: wordpress
+    tier: frontend
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: wp-pv-claim
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wordpress
+  labels:
+    app: wordpress
+  namespace: wordpress
+spec:
+  selector:
+    matchLabels:
+      app: wordpress
+      tier: frontend
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - image: wordpress:5.3.2-apache
+        name: wordpress
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: wordpress-mysql
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+              key: password
+        ports:
+        - containerPort: 80
+          name: wordpress
+        volumeMounts:
+        - name: wordpress-persistent-storage
+          mountPath: /var/www/html
+      volumes:
+      - name: wordpress-persistent-storage
+        persistentVolumeClaim:
+          claimName: wp-pv-claim
+```
+
 
 Conclusie
 ---
