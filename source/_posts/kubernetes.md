@@ -58,14 +58,20 @@ Er zijn veel providers welke ondersteuning bieden aan Kubernetes:
 
 Voor een complete lijst kijk op [Types of Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#types-of-persistent-volumes)
 
+<img src="/images/kubernetes_storage.png" />
+
 #### Geautomatiseerd applicaties updaten en terug rollen
 
 In kubernetes kun je geautomatiseerd je applicaties updaten zonder downtime. Je kan opgeven hoeveel pods er offline mogen zijn tijdens een update van de applicatie. Je kunt ook opgeven dat er extra pods moeten worden aangemaakt tijdens de update zodoende blijft je applicatie op de gewenste hoeveelheid instanties. 
 Mocht de nieuwe versie toch niet goed zijn is deze gemakkelijk terug te rollen. Kubernetes houd een history bij van de gedeployde versies.
 
+<img src="/images/kubernetes_rollout.png" />
+
 #### Automatische verdeling van resources
 
 Kubernetes verdeeldt automatisch de load over de nodes gebaseerd op de recourse requirements en de beschikbaarheid op de nodes. Nodes kunnen worden voorzien van labels zodat alleen bepaalde workloads daar mogen draaien.
+
+<img src="/images/kubernetes_placements.png" />
 
 #### Automatisch herstellend
 
@@ -74,10 +80,13 @@ Mocht er een workload niet meer goed functioneren dan kan Kubernetes zelf een ni
 - In een Dockerfile is een ENTRYPOINT gedefineerd zodra dit process niet meer beschikbaar is zal de pod gestopt worden.
 - In een pod definitie kan je een livenessProbe instellen met bijv. een url welke gecontroleerd word als de resonse van de URL anders is dan een status code 200 zal de pod als unhealthy worden gezien.
 
+<img src="/images/kubernetes_self_healing.png" />
+
 #### Secret en configuration beheer
 
 In kubernetes kun je secrets en configuraties aanmaken welke dan gebruikt kunnen worden in de applicaties. Deze objecten zijn op alle nodes beschikbaar en worden beheerd door kubernetes. Secrets en configuraties kunnen worden uitgelezen als environment variabelen of als een volume worden gemount in de pod.
 
+<img src="/images/kubernetes_secret.png" />
 
 Hoe begin je met Kubernetes
 ---
