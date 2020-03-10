@@ -75,12 +75,43 @@ Kubernetes verdeeldt automatisch de load over de nodes gebaseerd op de recourse 
 
 #### Automatisch herstellend
 
-Mocht er een workload niet meer goed functioneren dan kan Kubernetes zelf een nieuwe versie van de pod opstarten. Of de pod nog goed functioneerd kan op meerdere manieren gecontroleerd worden.
+Mocht er een workload niet meer goed functioneren dan kan Kubernetes zelf een nieuwe versie van de pod opstarten. Of de pod nog goed functioneert kan op meerdere manieren gecontroleerd worden.
 
-- In een Dockerfile is een ENTRYPOINT gedefineerd zodra dit process niet meer beschikbaar is zal de pod gestopt worden.
-- In een pod definitie kan je een livenessProbe instellen met bijv. een url welke gecontroleerd word als de resonse van de URL anders is dan een status code 200 zal de pod als unhealthy worden gezien.
+In een Dockerfile is een ENTRYPOINT gedefineerd zodra dit process niet meer beschikbaar is zal de pod gestopt worden.
+```
+FROM mcr.microsoft.com/dotnet/core/runtime:3.1
+COPY --from=build-env /app/out .
 
-<img src="/images/kubernetes_self_healing.png" />
+# Start
+ENTRYPOINT ["dotnet", "AuditlogService.dll"]
+```
+
+In een pod definitie kan je een livenessProbe instellen met bijv. een url welke gecontroleerd word als de resonse van de URL anders is dan een status code 200 zal de pod als unhealthy worden gezien.
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: auditlogservice
+  name: auditlogservice
+spec:
+  containers:
+  - image: marcoippel/auditlogservice:1.0
+    name: auditlogservice
+    resources: {}
+    livenessProbe:
+      httpGet:
+        path: /health
+    readinessProbe:
+      httpGet:
+        path: /ready
+  dnsPolicy: ClusterFirst
+  restartPolicy: Never
+status: {}
+```
+
+<p><img src="/images/kubernetes_self_healing.png" /></p>
 
 #### Secret en configuration beheer
 
