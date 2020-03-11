@@ -31,22 +31,20 @@ Je kan een hele hoop oplossingen kwijt in Paas en Faas maar niet voor alles is P
 - De applicaties zijn schaalbaar tot ... instanties.
 - Je hebt een standaard deploy methode voor elke applicatie.
 
-
-
 Wat is Kubernetes
 ---
 
-Kubernetes is heel plat gezegd een beheer tool voor je containers. Kubernetes kan je onder andere helpen met de volgende zaken:
+Kubernetes, ook wel k8s genoemd, is kort gezegd een open-source systeem beheren van grote groepen containers en containerized applicaties. Met de software zijn containers te groeperen en eenvoudig(er) te beheren. Kubernetes kan je onder andere helpen met de volgende zaken:
 
 #### Service discovery en loadbalancing
 
-Kubernetes kan de load van applicaties verdelen over de verschillende instanties van de applicatie zodat de load verdeelt wordt over de verschillende instanties. Als je applicatie gaat schalen zullen de nieuwe instanties worden toegevoegd aan de interne loadbalanacer.
+Kubernetes kan de load van applicaties verdelen over de verschillende instanties van de applicatie zodat de load verdeelt wordt over de verschillende instanties. Als je applicatie gaat schalen zullen de nieuwe instanties worden toegevoegd aan de interne loadbalancer en het binnenkomend verkeer wordt verdeelt over de nieuwe instanties.
 
 <img src="/images/kubernetes_service_discovery.png" />
 
 #### Storage orchestration
 
-In Kubernetes heb je de mogelijkheid om een gedeelde storage in te stellen op je cluster. Stel je voor dat je een MySql server draait dan wil je niet dat als je MySql container stuk gaat dat je je database weg is. Deze kan je dan op een storage zetten. Hierdoor gaat je data nooit verloren als je container verwijder wordt.
+In Kubernetes heb je de mogelijkheid om een gedeelde storage in te stellen op je cluster. Stel je voor dat je een MySql server draait dan wil je niet dat als je MySql container stuk gaat dat je database weg is. Je kan hiervoor een persistant volume aanmaken en dit kun je koppelen aan een folder in je container. Zodoende als je container gaat schalen of hij werkt niet meer staan je database bestanden op een veilige plaats  
 Er zijn veel providers welke ondersteuning bieden aan Kubernetes:
 - awsElasticBlockStore
 - azureDisk
@@ -162,6 +160,7 @@ Nu ben je klaar om applicaties te deployen op Kubernetes.
 
 Hoe deploy je applicaties op Kubernetes
 ---
+
 Kubernetes bestaat uit verschillende componenten bijv.
 
 - Een ingresscontroller is een soort van reverse proxy welke het verkeer op basis van de inkomende url het verkeer naar een bepaalde service kan sturen.
