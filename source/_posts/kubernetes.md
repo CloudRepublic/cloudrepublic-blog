@@ -1,5 +1,5 @@
 ---
-title: Kubernetes, Nginx ingress controller en Let's Encrypt op AKS
+title: Kubernetes, hoe en waarom zou ik ermee beginnen.
 date: 2020-03-04 12:00:00
 tags:
 - Kubernetes
