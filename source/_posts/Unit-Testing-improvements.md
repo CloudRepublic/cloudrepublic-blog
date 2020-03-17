@@ -23,7 +23,7 @@ In this post, we will go over the steps you can take to improve your unit tests 
 
 Using a good naming convention for a unit test does not necessarily help you to write a better product but it will help your team to identify clearly what unit is tested and what state the unit under test is in.
 
-One of the most know conventions that are currently used is `[MethodUnderTest]_[Scenario]_[ExpectedResult]`. While its not a bad naming convention it is limit. Writing the naming of the unit test this way leaves out some imported details and might not make it clear to other programmers what the test is trying to test. With naming it's better to tell the story of the test. Let's look at two examples.
+One of the most know conventions that are currently used is `[MethodUnderTest]_[Scenario]_[ExpectedResult]`. While it is not a bad naming convention it is limited. Writing the naming of the unit test this way leaves out some imported details and might not make it clear to other programmers what the test is trying to test. With naming it is better to tell the story of the test. Let's look at two examples.
 
 In this example, we are looking at a static method that checks on an order if the delivery is valid. Using the convention mentioned above we would get something like this:
 
@@ -71,7 +71,7 @@ With this extension in place, we can start and write our first unit test for the
 
 As you can see from the picture above we used the extension method to get the order in the default state. What this default state means for you or your team can depend on the object in the test or on how the object is used in the system. In our example default just sets all the fields to a valid value and sets the status to new.
 
-From heron, we can keep using this method in other tests as well. Now let's imagine we add order-lines to our order class like this:
+From hereon, we can keep using this method in other tests as well. Now let's imagine we add order-lines to our order class like this:
 
 ![/images/unit-testing-improvements/code%204.png](/images/unit-testing-improvements/code%204.png)
 
@@ -83,7 +83,7 @@ In the method above I've created the order-line from scratch but let's say we wa
 
 ![/images/unit-testing-improvements/code%206.png](/images/unit-testing-improvements/code%206.png)
 
-As you can see we can make the test a lot smaller and with less repetitive code. It's like ordering a pizza and saying which toppings you want on the pizza.
+As you can see we can make the test a lot smaller and with less repetitive code. It is like ordering a pizza and saying which toppings you want on the pizza.
 
 # Mocking
 
