@@ -10,7 +10,7 @@ date: 2020-03-04 22:03:39
 When we think about a blueprint, we usually think about a technical drawing or guide for making something. 
 It’s a design or pattern that can be followed. 
 
-If we, for example, want to create a treehouse, then we would draw a blueprint and follow the design carefully. 
+If we, for example, want to create a treehouse, then we would draw a blueprint and follow the design carefully to always have the same outcome as the blueprint instructs. 
 
 Azure Blueprints works in much the same way. IT Engineers can use an Azure Blueprint to design and deploy Azure 
 resources to Azure according to different rules and patterns that an enterprise has.
@@ -21,7 +21,7 @@ and requirements of an enterprise.
 Case Description
 ---
 
-When we look at an enterprise, we usually see that they have a group within the company that is responsible for teaching the development teams how to use azure the way that the company wants it. 
+When we look at an enterprise, we usually see that they lack the tools to enforce the Governance of Azure Resources. They way they enforce rules on resources is done by a group within the company that is responsible for teaching the development teams how to use azure they way that the company wants it. 
 This teaching can be done in many different ways, one of which could be a document describing how to create resources and what rules apply when creating them. 
 The development teams can then start using these documents to create the resources they need.  
 
@@ -30,6 +30,10 @@ One of the problems that might occur is that the development team makes a mistak
 This essentially creates a bottleneck within the company. You can manage when one or two teams ask questions or need assistance when creating resources. But when you have more than ten teams the central team will be delayed in their work.  
 
 This is where Azure Blueprints comes into play!
+
+By using Azure Blueprints not only can we define how the resources should be made and used so that we always end up with the same result as the Blueprint describes. We can also check upon these created resources and make sure that they comply to the set of rules made by the enterprise. This makes sure that the enterprise does not have to interfere everytime resources are requested as they have already made sure that the blueprints use their rules.
+
+This removes the bottleneck described above as development teams can ask the group responsible for the Governance of Azure Resources to create certain resources for them. All the group has to do is use the correct blueprint on the subscription of the development team and they will have the resources they request without having to do anything themselves.
 
 What is Azure Blueprints?
 ---
@@ -44,7 +48,8 @@ There are a few artifacts that are used within Azure Blueprints:
 A blueprint is essentially a package that uses all these types of resources and artifacts together. this package then contains resources that comply with organizational standards and best practices. 
 
 <img src="/images/azure-blueprints/blueprint-diagram.png" />
- 
+
+
 Dive into Blueprints
 ---
 
@@ -64,7 +69,7 @@ After filling in the meta data for the blueprint it is time to create the actual
 
 Creating Blueprint 
 --- 
-We will be creating a new blueprint in the azure portal. There are currently options to do this with either Azure CLI or the SDK that is available for Azure Blueprints. 
+We will be creating a new blueprint in the Azure portal. There are currently options to do this with either Azure CLI or the SDK that is available for Azure Blueprints. 
 
 To find Azure Blueprints on azure either look under the Policy service or go to all resouces and search for blueprint 
 
