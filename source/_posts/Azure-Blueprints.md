@@ -21,19 +21,22 @@ and requirements of an enterprise.
 Case Description
 ---
 
-When we look at an enterprise, we usually see that they lack the tools to enforce the Governance of Azure Resources. They way they enforce rules on resources is done by a group within the company that is responsible for teaching the development teams how to use azure they way that the company wants it. 
+When we look at an enterprise, we usually see that they lack the tools to enforce the Governance of Azure Resources. The way they enforce rules on resources is done by a group within the company that is responsible for teaching the development teams how to use Azure they way that the company wants it. 
 This teaching can be done in many different ways, one of which could be a document describing how to create resources and what rules apply when creating them. 
-The development teams can then start using these documents to create the resources they need.  
+The development teams can then start using these documents to create the resources they need.
 
 One of the problems that might occur is that the development team makes a mistake while trying to set up the resources they need. When this happens they will go to the central group that is responsible for Azure and ask them how to fix this.  
 
 This essentially creates a bottleneck within the company. You can manage when one or two teams ask questions or need assistance when creating resources. But when you have more than ten teams the central team will be delayed in their work.  
+
+Also what can happen is that the enterprise can enforce Governance when things are already deployed to azure. This could cause some problems as other resources might have to be reconfigured to adhere to the new rules.
 
 This is where Azure Blueprints comes into play!
 
 By using Azure Blueprints not only can we define how the resources should be made and used so that we always end up with the same result as the Blueprint describes. We can also check upon these created resources and make sure that they comply to the set of rules made by the enterprise. This makes sure that the enterprise does not have to interfere everytime resources are requested as they have already made sure that the blueprints use their rules.
 
 This removes the bottleneck described above as development teams can ask the group responsible for the Governance of Azure Resources to create certain resources for them. All the group has to do is use the correct blueprint on the subscription of the development team and they will have the resources they request without having to do anything themselves.
+
 
 What is Azure Blueprints?
 ---
@@ -71,7 +74,7 @@ Creating Blueprint
 --- 
 We will be creating a new blueprint in the Azure portal. There are currently options to do this with either Azure CLI or the SDK that is available for Azure Blueprints. 
 
-To find Azure Blueprints on azure either look under the Policy service or go to all resouces and search for blueprint 
+To find Azure Blueprints on Azure either look under the Policy service or go to all resouces and search for blueprint 
 
 After clicking on the blueprint service you should end up in the Azure Blueprint Blade. On this blade click on the **Create** button 
 
@@ -119,9 +122,246 @@ Lastly it is time to click on Assign to assign the blueprint and start the deplo
 
 After the blueprint is assigned and the deployment process is completed we could now see that the storage account showed up in the resourcegroup that we created with this blueprint.
 
-Conclusion 
+# Blueprints as code
+
+Ofcourse it is also possible to create a Azure Blueprint without using the portal. This gives you alot of freedom as you can create blueprints during a build or release pipeline or create your own code that can manage the these blueprints.
+
+For this example I will be using powershell to create a blueprint and publish it.
+
+Before we can start creating blueprints with powershell we first need to make sure that the [Az.Blueprint module](https://docs.microsoft.com/nl-nl/azure/governance/blueprints/how-to/manage-assignments-ps#add-the-azblueprint-module) is installed.
+
+## Create a blueprint
+
+To create a blueprint we need to first start out by composing a blueprint. This can be done by creating a json file with different resources.
+
+We'll start by creating a blueprint named 'CloudRepublicBlueprint' so that we can configure role and policy assignments for a subscription.
+
+Next we will add a resourcegroup and storage account to the blueprint.
+
+Finally we will publish the blueprint with a version number so that we can assign it to a subscription.
+
+start out by creating a blueprint.json file:
+
+    {
+        "properties": {
+            "description": "This blueprint sets tag policy and role assignment on the subscription, creates a ResourceGroup, and deploys a resource template and role assignment to that ResourceGroup.",
+            "targetScope": "subscription",
+            "parameters": {
+                "storageAccountType": {
+                    "type": "string",
+                    "defaultValue": "Standard_LRS",
+                    "allowedValues": [
+                        "Standard_LRS",
+                        "Standard_GRS",
+                        "Standard_ZRS",
+                        "Premium_LRS"
+                    ],
+                    "metadata": {
+                        "displayName": "storage account type.",
+                        "description": null
+                    }
+                },
+                "tagName": {
+                    "type": "string",
+                    "metadata": {
+                        "displayName": "The name of the tag to provide the policy assignment.",
+                        "description": null
+                    }
+                },
+                "tagValue": {
+                    "type": "string",
+                    "metadata": {
+                        "displayName": "The value of the tag to provide the policy assignment.",
+                        "description": null
+                    }
+                },
+                "contributors": {
+                    "type": "array",
+                    "metadata": {
+                        "description": "List of AAD object IDs that is assigned Contributor role at the subscription",
+                        "strongType": "PrincipalId"
+                    }
+                },
+                "owners": {
+                    "type": "array",Conclusion 
 ---
 Azure Blueprints makes it possible to create a repeatable set of Azure Resources that adhere to the rules and requirements of an organization. 
 It can be used to keep track of what is deployed. What version is deployed where and makes it really easy to update a rule if required. 
 Azure Blueprints also comes with an SDK and API, which gives you the chance to automate this process.
 
+                    "metadata": {
+                        "description": "List of AAD object IDs that is assigned Owner role at the resource group",
+                        "strongType": "PrincipalId"
+                    }
+                }
+            },
+            "resourceGroups": {
+                "storageRG": {
+                    "description": "Contains the resource template deployment and a role assignment."
+                }
+            }
+        }
+    }
+
+this blueprint.json file will be used to create the blueprint. Run the following script with the `blueprint.json` to create a draft of this blueprint:
+
+    $blueprint = New-AzBlueprint -Name 'CloudRepublicBlueprint' -BlueprintFile .\blueprint.json
+
+This will create the blueprint in the subscription that is selected by default. To specify a subscription use `SubscriptionId`.
+
+### Assigning Resource Template
+
+now that the storage account is created, we can add policies and Azure Resource Template to this resource group.
+
+The following code will add a storage account where we can add the parameters when we assign the blueprint to a subscription:
+
+    {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {
+            "CloudRepublicStorageAccountType": {
+                "type": "string",
+                "metadata": {
+                    "description": "Storage Account type"
+                }
+            },
+            "CloudRepublicTagName": {
+                "type": "string",
+                "defaultValue": "NotSet",
+                "metadata": {
+                    "description": "Tag name from blueprint"
+                }
+            },
+            "tagValue": {
+                "type": "string",
+                "defaultValue": "NotSet",
+                "metadata": {
+                    "description": "Tag value from blueprint"
+                }
+            }
+        },
+        "variables": {
+            "storageAccountName": "[concat(uniquestring(resourceGroup().id), 'standardsa')]"
+        },
+        "resources": [{
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('storageAccountName')]",
+            "apiVersion": "2016-01-01",
+            "tags": {
+                "[parameters('tagName')]": "[parameters('tagValue')]"
+            },
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('storageAccountType')]"
+            },
+            "kind": "Storage",
+            "properties": {}
+        }],
+        "outputs": {
+            "storageAccountSku": {
+                "type": "string",
+                "value": "[variables('storageAccountName')]"
+            }
+        }
+    }
+
+Following code will use the parameters `CloudRepublicStorageAccountType` , `CloudRepublicTagName` and `CloudRepublicTagValue` that we need to provide in a parameter file
+
+    {
+        "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+        "contentVersion": "1.0.0.0",
+        "parameters": {
+            "CloudRepublicStorageAccountType": {
+                "value": "[parameters('storageAccountType')]"
+            },
+            "CloudRepublicTagName": {
+                "value": "[parameters('tagName')]"
+            },
+            "CloudRepublicTagValue": {
+                "value": "[parameters('tagValue')]"
+            }
+        }
+    }
+
+To assign the ARM template to the draft blueprint we run the following powershell script:
+
+    New-AzBlueprintArtifact -Blueprint $blueprint -Type TemplateArtifact -Name 'CloudRepublicStorage' -TemplateFile .\storageTemplate.json -TemplateParameterFile .\storageTemplateParameters.json -ResourceGroupName storageRG
+
+### adding policies or role assignments
+
+To add a policy or role assignment we need to create a json object for this as well. The example below uses the definition identifier for the **Owner** role which is the build in GUID `8e3af657-a8ff-443c-a75c-2fe8c4bcb635` 
+
+    {
+        "kind": "roleAssignment",
+        "properties": {
+            "resourceGroup": "storageRG",
+            "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
+            "principalIds": "[parameters('owners')]"
+        }
+    }
+
+powershell command to add the role assignment to the blueprint
+
+    New-AzBlueprintArtifact -Blueprint $blueprint -Name 'roleOwner' -ArtifactFile .\artifacts\roleOwner.json
+
+## Publishing blueprint
+
+now that all the artifacts and policies have been added to the blueprint it is time to finally publish the  blueprint and make it available for assignment
+
+    Publish-AzBlueprint -Blueprint $blueprint -Version '1.0'
+
+this will publish the blueprint with version 1.0. The version can be set to anything. But for this example we set it to version 1.0
+
+## Assigning blueprint
+
+The blueprint is published and ready to be assigned!
+
+Blueprint assignment works the same as previous steps. So we first have to create an assignment.json file that contains our assignment details:
+
+    {
+        "properties": {
+            "blueprintId": "<id of blueprint>",
+            "resourceGroups": {
+                "storageRG": {
+                    "name": "<name of the storage account>",
+                    "location": "<location of the storage account>"
+                }
+            },
+            "parameters": {
+                "storageAccountType": {
+                    "value": "Standard_GRS"
+                },
+                "tagName": {
+                    "value": "CostCenter"
+                },
+                "tagValue": {
+                    "value": "ContosoIT"
+                },
+                "contributors": {
+                    "value": [
+                        "<objectId of the principal from Azure Active Directory>"
+                    ]
+                },
+                "owners": {
+                    "value": [
+                        "<objectId of the principal from Azure Active Directory>"
+                    ]
+                }
+            }
+        },
+        "identity": {
+            "type": "systemAssigned"
+        },
+        "location": "westus"
+    }
+
+powershell command the assign the blueprint
+
+    New-AzBlueprintAssignment -Blueprint $blueprint -Name 'assignMyBlueprint' -AssignmentFile .\blueprintAssignment.json
+
+
+Conclusion 
+---
+Azure Blueprints makes it possible to create a repeatable set of Azure Resources that adhere to the rules and requirements of an organization. 
+It can be used to keep track of what is deployed. What version is deployed where and makes it really easy to update a rule if required. 
+Azure Blueprints also comes with an SDK and API, which gives you the chance to automate this process.
