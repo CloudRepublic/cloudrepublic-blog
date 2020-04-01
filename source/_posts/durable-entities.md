@@ -44,7 +44,7 @@ There are also other properties on an Entity like:
 
 A very simple Entity looks like this:
 
-![images/durable-entities/code.png](images/durable-entities/code.png)
+![Entity](images/durable-entities/code.png)
 
 If we look at the above code you might be thinking but how and where does the call to the database take place to store the `BedEntity` after its modified? This is all abstracted by the framework. We do not need to worry about it. Both methods `IsOccupiedBedAsync` and `AssignBedAsync` change the state of the entity asynchronously and then the framework does the rest. The function `HandleEntityOperation` allows us to call operations on this entity from the client function or orchestrator.
 
@@ -52,13 +52,17 @@ If we look at the above code you might be thinking but how and where does the ca
 
 Now let's have a look at a simple client function that would make use of this `BedEntity`:
 
-![images/durable-entities/code%201.png](images/durable-entities/code%201.png)
+![Client Function](images/durable-entities/code%201.png)
 
 If we now run this client Function and send a request to it (bedNumber = 123) with a breakpoint on the logline we see the entityId being constructed as `@BedEntity@123`. The framework will use this id to get the current state if an entity is found using this id. If an entity is found using the `ReadEntityStateAsync` method on the `IDurableEntityClient` we check if the bed is also occupied. If that is the case we cannot assign it and return a `BadRequest`. If no BedEntity could be found with this id or the bed is not occupied we signal the entity to assign a bed with the provided `bedNumber` using the `SignalEntityAsync` method. This method gets the entity and triggers the `AssignBedAsync` call which changes the state. The framework then persists the changes in the entity state back to table storage.
 
 But what happens in the underlaying framework if we call `SignalEntityAsync`? What happens is that the framework starts up a virtual actor as Microsoft calls it. Its a function that acts on our request to process information regarding the entities state. For the communication, the framework uses the existing durable queues that we know from the already existing durable functions framework which this is built on.
 
-Durable entities are in no way replacing the previously existing durable functions. They are an addition to the existing durable function framework to help you to get rid of some of the plumbing work that was still there. You can use all the parts that were already there in combination with this new addition. One of the key parts that Entities resolve is if you would send a lot of `AssignBed` requests the framework would process them for the entity there are requesting one by one. This means you don't need to write locks or checks to validate the concurrency. This is all handled by the framework.
+Durable entities are in no way replacing the previously existing durable functions. They are an addition to the existing durable function framework to help you to get rid of some of the plumbing work that was still there. You can use all the parts that were already there in combination with this new addition. 
+
+![Durable Function Types](images/durable-entities/functiontypes.png)
+
+One of the key parts that Entities resolve is if you would send a lot of `AssignBed` requests the framework would process them for the entity there are requesting one by one. This means you don't need to write locks or checks to validate the concurrency. This is all handled by the framework.
 
 In our sample, we only used the Client function and the Entity to get the job done. If you need more flexibility you could easily add an Orchestrator function that we know from the existing durable functions to the mix that handles more complex scenarios.
 
