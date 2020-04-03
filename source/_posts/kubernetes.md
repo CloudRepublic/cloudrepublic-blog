@@ -16,20 +16,20 @@ In deze blog ga ik uitleggen wanneer je Kubernetes kan gebruiken, hoe je ermee k
 Waarom heb ik Kubernetes nodig
 ---
 
-Ik hoor vaak het argument waarom zou ik Kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas](https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
+Ik hoor vaak het argument waarom zou ik Kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas](https://en.wikipedia.org/wiki/Function_as_a_service). Wij vanuit Cloud Republic kiezen ook meestal voor een serverless architectuur. Serverless is lekker schaalbaar, gemakkelijk om mee te starten en goedkoop. Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
 
 <img src="/images/kubernetes_hamer.jpeg" />
 
 __<p style="text-align: center;">"Als je alleen een hamer hebt, neig je ernaar elk probleem te zien als een spijker."</p>__
 Je kan een hele hoop oplossingen kwijt in Paas en Faas maar niet voor alles is Paas of Faas de juiste oplossing bijv.
 
-- Als je complexe architecturen hebt kan dit een uitdaging zijn.
-- Als je volledige controle wilt hebben over je infrastructuur.
-- Als je legacy applicaties wilt hosten.
-- Als je geen vendor lock wilt hebben.
-- Kubernetes is ook mogelijk in je eigen datacentrum.
-- De applicaties zijn schaalbaar tot ... instanties.
-- Je hebt een standaard deploy methode voor elke applicatie.
+* Als je complexe architecturen hebt kan dit een uitdaging zijn. Als je bijv. software moet installeren op de host om je applicatie werkend te maken of  odbc drivers, speciale versies van frameworks nodig hebt of applicaties zoals een Jenkins server of een Zalenium test platform moet hosten.
+* Als je volledige controle wilt hebben over je infrastructuur. Je wilt bijv. controlle over de manier van schalen of het maximum aantal instanties. of je wilt mischien een blue-green deployment doen. [Blue-green deployment](https://en.wikipedia.org/wiki/Blue-green_deployment) 
+* Als je legacy applicaties wilt hosten.
+* Als je geen vendor lock wilt hebben. Je kan je containers gemakkelijk verplaatsen naar een andere cloudprovider of naar je eigen datacenter
+* Kubernetes is ook mogelijk in je eigen datacentrum. Mag je data niet in de cloud staan dan is dit zeker een goed altenatief.
+* De applicaties zijn schaalbaar tot ... instanties. Op een paas omgeving kun je standaard niet verder schalen dan 20 instanties in serverless is standaard het maximum instanties gelimiteerd tot 200.
+* Je hebt een standaard deploy methode voor elke applicatie. Het maakt niet uit of je een Nodejs, een .Net Core of een Java applicatie of een standaard CMS systeem. De deploy methode is altijd het uitrollen van een container welke alle dependencies bevat.
 
 Wat is Kubernetes
 ---
@@ -38,13 +38,18 @@ Kubernetes, ook wel k8s genoemd, is kort gezegd een open-source systeem beheren 
 
 #### Service discovery en loadbalancing
 
-Kubernetes kan de load van applicaties verdelen over de verschillende instanties van de applicatie zodat de load verdeelt wordt over de verschillende instanties. Als je applicatie gaat schalen zullen de nieuwe instanties worden toegevoegd aan de interne loadbalancer en het binnenkomend verkeer wordt verdeelt over de nieuwe instanties.
+Kubernetes kan de load van applicaties verdelen over de verschillende instanties van de applicatie zodat de load verdeelt wordt over de verschillende instanties. Als je applicatie gaat schalen zullen de nieuwe instanties worden toegevoegd aan de interne dns server en het binnenkomend verkeer wordt verdeelt over de nieuwe instanties. 
+
+Elke pod waar die een poort heeft gepubliseerd zal bereikbaar zijn doormiddel van een service bijv. een database server. Deze services worden toegevoegd aan een service registry. Als dan een pod een verbinding wil maken met de database pod dan gaat dit via de service. Aan het service registry zal gevraagd worden naar welk endpoint er verbonden dient te worden. Mocht er een service bij komen of mochten er meer pods beschikbaar zijn door een schaling worden deze toegevoegd en mocht er een niet meer werken dan wordt de service registry bijgewerkt. 
 
 <img src="/images/kubernetes_service_discovery.png" />
 
 #### Storage orchestration
 
-In Kubernetes heb je de mogelijkheid om een gedeelde storage in te stellen op je cluster. Stel je voor dat je een MySql server draait dan wil je niet dat als je MySql container stuk gaat dat je database weg is. Je kan hiervoor een persistant volume aanmaken en dit kun je koppelen aan een folder in je container. Zodoende als je container gaat schalen of hij werkt niet meer staan je database bestanden op een veilige plaats  
+In Kubernetes heb je de mogelijkheid om een gedeelde storage in te stellen op je cluster. Stel je voor dat je een MySql server draait dan wil je niet dat als je MySql container stuk gaat dat je database weg is omdat deze werd opgeslagen in je container. 
+Data welke belangerijk is en die je niet kwijt wil moet je niet in je container opslaan. Je kan hiervoor een persistant volume aanmaken en dit kun je koppelen aan een folder in je container. Zodoende als je container gaat schalen of hij werkt niet meer staan je database bestanden op een plaats buiten je container en kunnen de eventuele nieuwe containers ook bij de bestanden. Tevens is het gemakkelijker om je bestanden te backuppen op een gedeelde storage dan dat het een backup moet maken in verschillende containers.
+
+
 Er zijn veel providers welke ondersteuning bieden aan Kubernetes:
 - awsElasticBlockStore
 - azureDisk
@@ -67,7 +72,7 @@ Mocht de nieuwe versie toch niet goed zijn is deze gemakkelijk terug te rollen. 
 
 #### Automatische verdeling van resources
 
-Kubernetes verdeeld automatisch de load over de nodes gebaseerd op de recourse requirements en de beschikbaarheid op de nodes. Nodes kunnen worden voorzien van labels zodat alleen bepaalde workloads daar mogen draaien.
+Kubernetes verdeeld automatisch de containers over de nodes gebaseerd op de recourse requirements en de beschikbaarheid op de nodes. Nodes kunnen worden voorzien van labels zodat alleen bepaalde workloads daar mogen draaien. Dit is iets anders als loadbalancing, bij loadbalancing wordt de load verdeelt over meerder pods maar deze zouden best op dezelfde node kunnen staan hierdoor zou een node het een stuk drukker krijgen als een andere node in je cluster.
 
 <img src="/images/kubernetes_placements.png" />
 
