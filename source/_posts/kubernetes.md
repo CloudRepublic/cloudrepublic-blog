@@ -3,19 +3,20 @@ title: Kubernetes, Nginx ingress controller en Let's Encrypt op AKS
 date: 2020-03-04 12:00:00
 tags:
 - Kubernetes
-- Waarom kubernetes
+- Nginx
+- Let's Encrypt
 - AKS
 ---
 
 Case omschrijving
 ---
 
-In deze blog ga ik uitleggen wanneer je kubernetes kan gebruiken, hoe je ermee kunt starten op AKS en hoe je een applicatie kunt uitrollen. Als voorbeeld gaan we een wordpress applicatie uitrollen op kubernetes.
+In deze blog ga ik uitleggen wanneer je Kubernetes kan gebruiken, hoe je ermee kunt starten op AKS en hoe je een applicatie kunt uitrollen. Als voorbeeld gaan we een wordpress applicatie uitrollen op Kubernetes.
 
 Waarom heb ik Kubernetes nodig
 ---
 
-Ik hoor vaak het argument waarom zou ik kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas](https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
+Ik hoor vaak het argument waarom zou ik Kubernetes gebruiken wij hebben alles via [Paas](https://en.wikipedia.org/wiki/Platform_as_a_service) en [Faas](https://en.wikipedia.org/wiki/Function_as_a_service). Nu is Kubernetes ook geen vervanging voor Paas of Faas maar het is een toevoeging aan je toolbox. 
 
 <img src="/images/kubernetes_hamer.jpeg" />
 
@@ -59,7 +60,7 @@ Voor een complete lijst kijk op [Types of Persistent Volumes](https://kubernetes
 
 #### Geautomatiseerd applicaties updaten en terug rollen
 
-In kubernetes kun je geautomatiseerd je applicaties updaten zonder downtime. Je kan opgeven hoeveel pods er offline mogen zijn tijdens een update van de applicatie. Je kunt ook opgeven dat er extra pods moeten worden aangemaakt tijdens de update zodoende blijft je applicatie op de gewenste hoeveelheid instanties. 
+In Kubernetes kun je geautomatiseerd je applicaties updaten zonder downtime. Je kan opgeven hoeveel pods er offline mogen zijn tijdens een update van de applicatie. Je kunt ook opgeven dat er extra pods moeten worden aangemaakt tijdens de update zodoende blijft je applicatie op de gewenste hoeveelheid instanties. 
 Mocht de nieuwe versie toch niet goed zijn is deze gemakkelijk terug te rollen. Kubernetes houd een history bij van de gedeployde versies.
 
 <img src="/images/kubernetes_rollout.png" />
@@ -108,20 +109,19 @@ spec:
 status: {}
 ```
 
-<p><img src="/images/kubernetes_self_healing.png" /></p>
+<p><img src="/images/Kubernetes_self_healing.png" /></p>
 
 #### Secret en configuration beheer
 
-In kubernetes kun je secrets en configuraties aanmaken welke dan gebruikt kunnen worden in de applicaties. Deze objecten zijn op alle nodes beschikbaar en worden beheerd door kubernetes. Secrets en configuraties kunnen worden uitgelezen als environment variabelen of als een volume worden gemount in de pod.
+In Kubernetes kun je secrets en configuraties aanmaken welke dan gebruikt kunnen worden in de applicaties. Deze objecten zijn op alle nodes beschikbaar en worden beheerd door Kubernetes. Secrets en configuraties kunnen worden uitgelezen als environment variabelen of als een volume worden gemount in de pod.
 
 <img src="/images/kubernetes_secret.png" />
 
 Hoe begin je met Kubernetes
 ---
+Het is aan te raden om een managed instantie van Kubernetes af te nemen bij een public cloud provider. Bij een managed Kubernetes instantie hoef je je niet meer druk te maken over de installatie en configuratie van het cluster. Het kost namelijk een hele hoop tijd om een goed werkend en een veilig cluster te bouwen. Je moet het cluster blijven monitoren of het nog goed werkt en zelf alerts instellen om op de hoogte gehouden te worden als het cluster niet goed functioneert. Omdat Kubernetes zo uitgebreidt is kan er ook ontzettend veel misgaan en dan moet je het zelf troubleshooten en oplossen.
 
-Het eenvoudigste is eigenlijk neem een managed instantie bij een cloud provider. Bij een managed instantie hoef je je niet meer druk te maken over de installatie en configuratie van het cluster. Het kost namelijk een hele hoop tijd om een goed werkend en een veilig cluster te bouwen. Je moet het cluster blijven monitoren of het nog goed werkt en zelf alerts instellen om op de hoogte gehouden te worden als het cluster niet goed functioneert. Omdat kubernetes zo uitgebreidt is kan er ook ontzettend veel misgaan en dan moet je het zelf troubleshooten en oplossen.
-
-Er zijn heel veel varianten van kubernetes te krijgen enkele voorbeelden zijn bijv.
+Er zijn heel veel varianten van Kubernetes te krijgen enkele voorbeelden zijn:
 
 - Azure Kubernetes Service (AKS)
 - Amazon Elastic Kubernetes Service (EKS)
@@ -132,7 +132,7 @@ Ik ga het hier verder over AKS hebben dit is de managed Kubernetes oplossing van
 
 Wat is AKS
 ---
-AkS staat voor Azure Kubernetes Service en is een managed service van Azure om je Kubernetes workload op te draaien. AKS is volledig in Azure geïntegreerd het maakt bijv. gebruik van azure monitoring en alerting. Je kunt bijv. zien wat de status is van je cluster en hoe je containers draaien. Je kunt op container niveau inloggen en de logfiles per container bekijken. Ook kun je door middel van een terminal direct inloggen op de container. Azure DevOps heeft een hele goede integratie met AKS wat het mogelijk maakt om gemakkelijk applicaties te deployen op je kubernetes cluster. In een andere blog zal ik in detail ingaan op devops in combinatie met kubernetes.
+AkS staat voor Azure Kubernetes Service en is een managed service van Azure om je Kubernetes workload op te draaien. AKS is volledig in Azure geïntegreerd het maakt bijvoorbeeld gebruik van Azure monitoring en alerting. Je kunt bijvoorbeeld zien wat de status is van je cluster en hoe je containers draaien. Je kunt op container niveau inloggen en de logfiles per container bekijken. Ook kan je door middel van een terminal direct inloggen op de container. Azure DevOps heeft een hele goede integratie met AKS wat het mogelijk maakt om gemakkelijk applicaties te deployen op je Kubernetes cluster. In een andere blog zal ik in detail ingaan op devops in combinatie met Kubernetes.
 
 <img src="/images/Kubernetes_azure_monitor.png" />
 Een overzicht van de monitoring in AKS.
@@ -161,8 +161,7 @@ Nu ben je klaar om applicaties te deployen op Kubernetes.
 Hoe deploy je applicaties op Kubernetes
 ---
 
-Kubernetes bestaat uit verschillende componenten bijv.
-
+Kubernetes bestaat uit verschillende componenten, namelijk:
 - Een ingresscontroller is een soort van reverse proxy welke het verkeer op basis van de inkomende url het verkeer naar een bepaalde service kan sturen.
 - Een service is een object wat een pod exposed naar buiten. De reden dat je hier een apart object voor gebruikt wordt is dat als je een pod connect op het ipadres en de pod wordt verplaatst naar een andere node dan krijg je een nieuw ipadress.
 - Een pod is een wrapper om een of meerdere containers.
@@ -171,8 +170,7 @@ Kubernetes bestaat uit verschillende componenten bijv.
 - Een secret is een object waar je gevoelige informatie opslaan en beheren, zoals wachtwoorden, OAuth-tokens en ssh-sleutels.
 
 
-
-Om componenten uit te rollen op kubernetes moeten we deze beschrijven in yaml. Deze yaml zal vervolgens worden geserialiseerd naar kubernetes objecten.
+Om componenten uit te rollen op Kubernetes moeten we deze beschrijven in yaml. Deze yaml zal vervolgens worden geserialiseerd naar Kubernetes objecten.
 Om een voorbeeld wordpress applicatie uit te rollen hebben we de volgende yaml nodig:
 
 ```yaml
@@ -355,7 +353,7 @@ We kunnen deze yaml uitvoeren door het volgende commando uit te voeren:
 kubectl apply -f wordpress.yaml
 ```
 
-Dit commando zal de yaml naar de api sturen van kubernetes en de objecten aanmaken of updaten. Als alles goed is gegaan hebben we de onderstaande applicatie uitgerold:
+Dit commando zal de yaml naar de api sturen van Kubernetes en de objecten aanmaken of updaten. Als alles goed is gegaan hebben we de onderstaande applicatie uitgerold:
 
 <img src="/images/kubernetes_wordpress_overview.png" />
 
@@ -402,17 +400,17 @@ status: {}
 Welke resources zijn handig om te bekijken
 ---
 
-Ik luister graag in de auto naar podcasts en een hele goede podcast is die van Bret Fisher. Hij is een docker captain en hij heeft elke week een live stream op youtube en hij maakt hier ook podcasts van alles gaat over docker, docker swarm en kubernetes. https://www.bretfisher.com/podcast/
+Ik luister graag in de auto naar podcasts en een hele goede podcast is die van Bret Fisher. Hij is een docker captain en hij heeft elke week een live stream op youtube en hij maakt hier ook podcasts van alles gaat over docker, docker swarm en Kubernetes. https://www.bretfisher.com/podcast/
 
-Als je wilt beginnen met kubernetes op je computer dan is k3d een hele goede optie. Het is een gestripte versie van kubernetes met een hele handige installer erbij. https://github.com/rancher/k3d
+Als je wilt beginnen met Kubernetes op je computer dan is k3d een hele goede optie. Het is een gestripte versie van Kubernetes met een hele handige installer erbij. https://github.com/rancher/k3d
 
-Als je aan de slag wilt met kubernetes en niet meteen een cluster op je pc wilt installeren dan kun je terecht op Katakoda. Het is een omgeving waar je voor een uur een tijdelijk cluster kunt starten. Er zijn ook korte cursussen aanwezig welke je dan kunt uitvoeren op het cluster. https://www.katacoda.com/
+Als je aan de slag wilt met Kubernetes en niet meteen een cluster op je pc wilt installeren dan kun je terecht op Katakoda. Het is een omgeving waar je voor een uur een tijdelijk cluster kunt starten. Er zijn ook korte cursussen aanwezig welke je dan kunt uitvoeren op het cluster. https://www.katacoda.com/
 
-Als je iets langer wilt spelen met kubernetes dan kun je terecht op play with kubernetes. Dit is ook een gevirtualiseerde omgeving welke 4 uur beschikbaar is. https://labs.play-with-k8s.com/
+Als je iets langer wilt spelen met Kubernetes dan kun je terecht op play with Kubernetes. Dit is ook een gevirtualiseerde omgeving welke 4 uur beschikbaar is. https://labs.play-with-k8s.com/
 
 Mocht je een cursus willen doen kan ik je echt de cursussen aanraden van KodeKloud op udemy. Dit zijn echt hele duidelijke cursussen en als bonus heb je toegang tot een online leeromgeving waar je allerlei opdrachten moet uitvoeren. https://www.udemy.com/course/certified-kubernetes-application-developer/
 
 
 Conclusie
 ---
-Ondanks dat kubernetes een enorme steile leercurve heeft is het eenmaal als je het door hebt een geweldig platform om je applicaties op te hosten. Je kunt er alle complexe applicaties op hosten maar je kunt er ook gewoon je Azure functions op hosten. Je hebt met Kubernetes een volledige gereedschapskist om al je oplossingen in te hosten. Met een hosted oplossing op bijv. AKS wordt al heel veel complexiteit uit handen genomen.
+Ondanks dat Kubernetes een enorme steile leercurve heeft is het eenmaal als je het door hebt een geweldig platform om je applicaties op te hosten. Je kunt er alle complexe applicaties op hosten maar je kunt er ook gewoon je Azure functions op hosten. Je hebt met Kubernetes een volledige gereedschapskist om al je oplossingen in te hosten. Met een hosted oplossing op bijv. AKS wordt al heel veel complexiteit uit handen genomen.
