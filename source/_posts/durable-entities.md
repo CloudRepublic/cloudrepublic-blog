@@ -26,17 +26,17 @@ To get started with Durable Entities you need some basic knowledge about Azure f
 - Orchestrator - Has the flow logic and triggers Activities.
 - Activities - This has the actual compute logic and does the work.
 
-For more information on these topics please see [here](https://docs.microsoft.com/nl-nl/azure/azure-functions). 
+For more information on these topics please see [here](https://docs.microsoft.com/nl-nl/azure/azure-functions).
 
 ## What is an Entity?
 
-An Entity is what u expect it to be. If you worked with Entity-Framework or DDD before it should be a familiar term. An entity is a class consisting of properties that represents a set of data in some kind of storage. 
+An Entity is what u expect it to be. If you worked with Entity-Framework or DDD before it should be a familiar term. An entity is a class consisting of properties that represents a set of data in some kind of storage.
 
 In our case, the state of the Entity is persisted in Azure Table Storage by the framework.  Entities in Durable Entities are a bit different in the sense that they are like small microservices (Actors) that have methods on them that you can call. In order to call an Entity we need to know its `Entity ID`. This Id uniquely identifies the Entity. An Entity-Id consists of a name and a key that together form a uniquely identifiable string.
 
 There are also other properties on an Entity like:
 
-**Operation name**, ****this would be the name of an operation that can be performed. For example `Claim Bed`.
+**Operation name**, this would be the name of an operation that can be performed. For example `AssignBedAsync`.
 
 **Operation Input**, These are parameters that can be provided with the operation to perform. These parameters are optional. For example the name of the person that will occupy the bed.
 
@@ -44,7 +44,41 @@ There are also other properties on an Entity like:
 
 A very simple Entity looks like this:
 
-![Entity](images/durable-entities/code.png)
+```csharp
+public class BedEntity
+{
+    public string BedNumber { get; set; }
+    public bool IsOccupied { get; set; }
+    
+    private readonly ILogger _logger;
+
+    public BedEntity(ILogger logger, string bedNumber)
+    {
+        _logger = logger;
+        BedNumber = bedNumber;
+    }
+    
+    [FunctionName(nameof(BedEntity))]
+    public static async Task HandleEntityOperation(
+        [EntityTrigger] IDurableEntityContext context,
+        ILogger logger)
+    {
+        await context.DispatchAsync<BedEntity>(logger, context.EntityKey);
+    }
+    
+    public Task<bool> IsOccupiedBedAsync()
+    {
+        var IsOccupied = BedNumber == "123";
+        return Task.FromResult(IsOccupied);
+    }
+    
+    public Task AssignBedAsync(string bedNumber)
+    {
+        IsOccupied = true;
+        return Task.CompletedTask;
+    }
+}
+```
 
 If we look at the above code you might be thinking but how and where does the call to the database take place to store the `BedEntity` after its modified? This is all abstracted by the framework. We do not need to worry about it. Both methods `IsOccupiedBedAsync` and `AssignBedAsync` change the state of the entity asynchronously and then the framework does the rest. The function `HandleEntityOperation` allows us to call operations on this entity from the client function or orchestrator.
 
@@ -52,7 +86,33 @@ If we look at the above code you might be thinking but how and where does the ca
 
 Now let's have a look at a simple client function that would make use of this `BedEntity`:
 
-![Client Function](images/durable-entities/code%201.png)
+```csharp
+public static class BedManager
+{
+    [FunctionName(nameof(AssignBed))]
+    public static async Task<IActionResult> AssignBed(
+        [HttpTrigger(AuthorizationLevel.Function, "get")]
+        HttpRequest req,
+        [DurableClient] IDurableEntityClient durableEntityClient,
+        ILogger log)
+    {
+        var bedNumber = req.Query["bedNumber"];
+        var entityId = new EntityId(nameof(BedEntity),bedNumber);
+        
+        log.LogInformation($"Received request for bed {bedNumber}");
+        
+        var bedEntity = await durableEntityClient.ReadEntityStateAsync<BedEntity>(entityId);
+        if (bedEntity.EntityExists && bedEntity.EntityState.IsOccupied)
+        {
+            return new BadRequestObjectResult("Bed is already occupied.");
+        }
+        
+        await durableEntityClient.SignalEntityAsync(entityId, nameof(BedEntity.AssignBedAsync));
+
+        return new OkObjectResult($"Bed {bedNumber} has been set to occupied.");
+    }
+}
+```
 
 If we now run this client Function and send a request to it (bedNumber = 123) with a breakpoint on the logline we see the entityId being constructed as `@BedEntity@123`. The framework will use this id to get the current state if an entity is found using this id. If an entity is found using the `ReadEntityStateAsync` method on the `IDurableEntityClient` we check if the bed is also occupied. If that is the case we cannot assign it and return a `BadRequest`. If no BedEntity could be found with this id or the bed is not occupied we signal the entity to assign a bed with the provided `bedNumber` using the `SignalEntityAsync` method. This method gets the entity and triggers the `AssignBedAsync` call which changes the state. The framework then persists the changes in the entity state back to table storage.
 
