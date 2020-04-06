@@ -119,71 +119,69 @@ Before we can start creating blueprints with PowerShell we first need to make su
 
 ## Create a blueprint
 
+Azure Blueprints makes it possible to create a repeatable set of Azure Resources that adhere to the rules and requirements of an organization. It can be used to keep track of what is deployed. What version is deployed where and makes it really easy to update a rule if required. Azure Blueprints also comes with an SDK and API, which gives you the chance to automate this process.
+
 To create a blueprint we need to first start out by composing a blueprint. This can be done by creating a json file with different resources. We'll start by creating a blueprint named 'CloudRepublicBlueprint' so that we can configure role and policy assignments for a subscription. Next we will add a resourcegroup and storage account to the blueprint. Finally we will publish the blueprint with a version number so that we can assign it to a subscription.
 
 Start out by creating a blueprint.json file:
 ```json
     {
-        "properties": {
-            "description": "This blueprint sets tag policy and role assignment on the subscription, creates a ResourceGroup, and deploys a resource template and role assignment to that ResourceGroup.",
-            "targetScope": "subscription",
-            "parameters": {
-                "storageAccountType": {
-                    "type": "string",
-                    "defaultValue": "Standard_LRS",
-                    "allowedValues": [
-                        "Standard_LRS",
-                        "Standard_GRS",
-                        "Standard_ZRS",
-                        "Premium_LRS"
-                    ],
-                    "metadata": {
-                        "displayName": "storage account type.",
-                        "description": null
-                    }
-                },
-                "tagName": {
-                    "type": "string",
-                    "metadata": {
-                        "displayName": "The name of the tag to provide the policy assignment.",
-                        "description": null
-                    }
-                },
-                "tagValue": {
-                    "type": "string",
-                    "metadata": {
-                        "displayName": "The value of the tag to provide the policy assignment.",
-                        "description": null
-                    }
-                },
-                "contributors": {
-                    "type": "array",
-                    "metadata": {
-                        "description": "List of AAD object IDs that is assigned Contributor role at the subscription",
-                        "strongType": "PrincipalId"
-                    }
-                },
-                "owners": {
-                    "type": "array",Conclusion 
-```
----
-Azure Blueprints makes it possible to create a repeatable set of Azure Resources that adhere to the rules and requirements of an organization. It can be used to keep track of what is deployed. What version is deployed where and makes it really easy to update a rule if required. Azure Blueprints also comes with an SDK and API, which gives you the chance to automate this process.
-````json
-
-                    "metadata": {
-                        "description": "List of AAD object IDs that is assigned Owner role at the resource group",
-                        "strongType": "PrincipalId"
-                    }
+    "properties": {
+        "description": "This blueprint sets tag policy and role assignment on the subscription, creates a ResourceGroup, and deploys a resource template and role assignment to that ResourceGroup.",
+        "targetScope": "subscription",
+        "parameters": {
+            "storageAccountType": {
+                "type": "string",
+                "defaultValue": "Standard_LRS",
+                "allowedValues": [
+                    "Standard_LRS",
+                    "Standard_GRS",
+                    "Standard_ZRS",
+                    "Premium_LRS"
+                ],
+                "metadata": {
+                    "displayName": "storage account type.",
+                    "description": null
                 }
             },
-            "resourceGroups": {
-                "storageRG": {
-                    "description": "Contains the resource template deployment and a role assignment."
+            "tagName": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "The name of the tag to provide the policy assignment.",
+                    "description": null
                 }
+            },
+            "tagValue": {
+                "type": "string",
+                "metadata": {
+                    "displayName": "The value of the tag to provide the policy assignment.",
+                    "description": null
+                }
+            },
+            "contributors": {
+                "type": "array",
+                "metadata": {
+                    "description": "List of AAD object IDs that is assigned Contributor role at the subscription",
+                    "strongType": "PrincipalId"
+                }
+            },
+            "owners": {
+                "type": "array",
+                "metadata": {
+                    "description": "List of AAD object IDs that is assigned Owner role at the resource group",
+                    "strongType": "PrincipalId"
+                }
+            }
+        },
+        "resourceGroups": {
+            "storageRG": {
+                "description": "Contains the resource template deployment and a role assignment."
             }
         }
     }
+}
 ```
+---
 
 this blueprint.json file will be used to create the blueprint. Run the following script with the `blueprint.json` to create a draft of this blueprint:
 
