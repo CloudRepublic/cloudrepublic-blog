@@ -34,7 +34,7 @@ Once the scan is complete, the data users in your company can start using the da
 
 <img src="/images/azure-purview/business-context.png" />
 
-In this example, you will note that you can expand the data within your organistation by adding descriptions and context to them. This allows an organisation to clearly define any domain knowledge or business context to their data users.
+In this example, you will note that you can expand the data within your organization by adding descriptions and context to them. This allows an organisation to clearly define any domain knowledge or business context to their data users.
 
 Secondly, classification is another important part of Azure Purview. It's important for an organisation to be compliant with rules and regulations like GDPR. Azure Purview helps with this by classifying data fields. It uses AI to see what a field contains, and classifies it accordingly. With this knowledge, you know where within your company your sensitive data resides. 
 
