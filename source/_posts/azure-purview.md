@@ -8,7 +8,7 @@ If you don't know what kind of data you have and where it resides, it is difficu
 
 Azure Purview is a unified data governance service that helps you scan and map all your data no matter where the data is stored. Whether this data is on-premise, multi-cloud, or SaaS data.
 
-Azure Purview is an update to the existing Azure Data Catalog Gen 2 service. Azure Data Catalog Gen 2 focused more on managing metadata instead of real data governance and was capable of mapping, searching for, and tagging data within data sources but wasn't able to classify its data. This made it difficult to comply to various data protection laws, such as GDPR. 
+Azure Purview is an update to the existing Azure Data Catalog Gen 2 service. Azure Data Catalog Gen 2 focused more on managing metadata instead of actual data governance. It was capable of mapping, searching for, and tagging data within data sources but wasn't able to classify its data. This made it difficult to comply to various data protection laws, such as GDPR. 
 
 Azure Purview helps you enter the following questions:
 
@@ -18,7 +18,7 @@ Azure Purview helps you enter the following questions:
 
 # How Does Azure Purview Work?
 
-It all starts with the data. Organisations can have many different data assets such as files, tables, reports and databases. These data sources can exist across different environments, like in the public cloud, on-premise, and SaaS platforms. Azure Purview even supports multi-cloud. Because of this support, you do not have to move data from on-premise or other cloud providers to Azure: everything you want to scan can stay where it is. 
+ Organisations can have many different data assets such as files, tables, reports and databases. These data sources can exist across different environments, like in the public cloud, on-premise, and SaaS platforms. Azure Purview even supports multi-cloud and because of this support, you do not have to move data from on-premise or other cloud providers to Azure: everything you want to scan can stay where it is. 
 
 <img src="/images/azure-purview/cloud-model.png" />
 
@@ -34,7 +34,7 @@ Once the scan is complete, the data users in your company can start using the da
 
 <img src="/images/azure-purview/business-context.png" />
 
-In this example, you will note that you can expand the data within your organization by adding descriptions and context to them. This allows an organisation to clearly define any domain knowledge or business context to their data users.
+In this example above, you will note that you can expand the data within your organization by adding descriptions and context to them. This allows an organisation to clearly define domain knowledge or business context to their data users.
 
 Secondly, classification is another important part of Azure Purview. It's important for an organisation to be compliant with rules and regulations like GDPR. Azure Purview helps with this by classifying data fields. It uses AI to see what a field contains, and classifies it accordingly. With this knowledge, you know where within your company your sensitive data resides. 
 
@@ -42,11 +42,11 @@ Last but not least, Azure Purview offers data lineage. data lineage lets you see
 
 <img src="/images/azure-purview/lineage.png" />
 
-Data lineage in combination with Classification can be really helpful to see where sensitive data is used and whether it should be available in those specific places. 
+Data lineage in combination with Classification can be really helpful to see where sensitive data is used and whether it should be available in specific places. 
 
 # **Getting Started With Azure Purview**
 
-To get started, you first need to make sure you are the administrator for your subscription. It is also important to note that you need to enable specific resources for the subscription to be able to use Azure Purview:
+To get started, you need to have administrator rights on the subscription that you are using. It is also important to note that you need to enable specific resources for the subscription to be able to use Azure Purview:
 
 - Microsoft.Purview
 - Microsoft.EventHub
@@ -62,16 +62,8 @@ The Basics tab is pretty straightforward. Provide a valid resource group and nam
 
 <img src="/images/azure-purview/configuration.png" />
 
-In the Configuration tab, there are a few new options. As Azure Purview is still in preview, not much is known about what the platform sizing, catalog options and data insights settings mean (the learn more button only points to the pricing). 
+In the Configuration tab, there are a few new options. As Azure Purview is still in preview, so not much is known about what the platform sizing, catalog options and data insights settings change (the learn more button only points to the pricing). 
 
-However, knowing that Azure Purview focuses on doing scans, we can conclude that platform size might have something to do with scanning frequency and the number of scans you can perform. 
-
-Under the catalog category, there are two options (which are greyed out due to it being in preview). Here you can select which one is relevant for your implementation. The two options as of writing this blog are:
-
-- Sources registration, automated scans and data discovery
-- Business glossary and lineage visualization
-
-The last category, **Data insights**, is about creating statistics and analytics for all the data that you scanned. 
 
 After configuring the settings, you can create the resource. 
 
@@ -81,7 +73,7 @@ After configuring the settings, you can create the resource.
 
 Azure Purview Studio contains the overview where you can start your scans, look at lineage, add business glossary, and much more.
 
-Azure Purview Studio also has a search field you can use to look through all the assets that have been scanned. To get there, we first have to register some data sources and perform a scan. 
+Azure Purview Studio also has a search field you can use to look through all the assets that have been scanned. To get there we first have to register some data sources and perform a scan. 
 
 <img src="/images/azure-purview/purview-studio.png" />
 
@@ -113,21 +105,21 @@ The configuration that has to entered is pretty straightforward. Under credentia
 
 I personally would advice against giving full access to the database and instead create a new managed identity.
 
-Creating a new managed identity will require a name and an authentication method (in the example, SQL authentication was used). No matter what method you choose, it will require you to use Azure Key Vault credentials which prevents you from hardcoding the password in the service itself. This is a convenient security feature they included. 
+Creating a new managed identity will require a name and an authentication method (in the example, SQL authentication was used). Regardless of* what method you choose, it will require you to use Azure Key Vault credentials which prevents you from hardcoding the password in the service itself. This is a convenient security feature they included. 
 
 <img src="/images/azure-purview/create-credential.png" />
 
-After having set up the managed identity and given the managed identity access to the keyvault, it is time to start the scan. Select which tables you want to scan and in which interval you want the scan to be executed. You can also create your own custom rulesets, that is outside the scope of this article. 
+After having set up the managed identity and given the managed identity access to the keyvault, it is time to start the scan. Select which tables you want to scan and in which interval you want the scan to be executed. You can also create your own custom rulesets, but that is outside the scope of this article. 
 
 <img src="/images/azure-purview/sqldatabase.png" />
 
-After the scan is complete, the details on the database pane will show how many scans have run and how many assets it has scanned. 
+After the scan is complete, the details on the database pane will show how many scans have run and how many assets have been scanned. 
 
 ## Data catalog
 
 After the data source registrations and scans, we can use the results of the scanned data to know more about the data in our organisation. 
 
-Let's start at the homepage which is accessible to the organisation based on role and account access policies. As we start searching, the data catalog will return metadata about that database we just scanned.  When we enter ```customer```, it shows the result of the asset it found, which in this case is a table about customer addresses. 
+Let's start at the homepage which is accessible to the organisation based on role and account access policies. As we start searching, the data catalog will return metadata about that database we just scanned.  When we enter ```customer```, it shows the result of the assets it found, which in this case is a table about customer addresses. 
 
 <img src="/images/azure-purview/search.png" />
 
