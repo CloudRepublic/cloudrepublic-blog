@@ -49,7 +49,7 @@ I use an app called hour blocks, which is available for [IOS](https://apps.apple
 
 Suppose this is too specific for you and you want to be more flexible. In that case, I recommend creating a task list in the order of importance. I use markers at each task to indicate the type of functions and their importance.
 
-![Daily plan](./images/working-from-home/daily-plan.png)
+![Daily plan](/images/working-from-home/daily-plan.png)
 
 Which system you use is up to you. What I would recommend is that you work on the most difficult or dreaded task first. Like mentioned before, at the office, distractions are limited. Still, at home, you will be surprised how many little things there are to do instead of that one demanding task.
 
