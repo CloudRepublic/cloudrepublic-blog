@@ -80,7 +80,7 @@ theme: landscape
 deploy:
   type: git
   repo: https://github.com/CloudRepublic/cloudrepublic.github.io.git
-  branch: master
+  branch: feature/azure-purview
 
 # Sitemap settings
 sitemap:
